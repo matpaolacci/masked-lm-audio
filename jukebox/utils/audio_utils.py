@@ -20,9 +20,9 @@ class STFTValues:
         self.window_size = window_size
 
 def calculate_bandwidth(dataset, hps, duration=600):
-    general_hps = hps
     hps = DefaultSTFTValues(hps)
     n_samples = int(dataset.sr * duration)
+    assert n_samples < len(dataset) * dataset.sr, f'Not enough samples in dataset to calculate bandwidth. Requested {n_samples}, got {len(dataset) * dataset.sr}'
     l1, total, total_sq, n_seen, idx = 0.0, 0.0, 0.0, 0.0, dist.get_rank()
     spec_norm_total, spec_nelem = 0.0, 0.0
     while n_seen < n_samples:
@@ -30,8 +30,6 @@ def calculate_bandwidth(dataset, hps, duration=600):
         if isinstance(x, (tuple, list)):
             x, y = x
         samples = x.astype(np.float64)
-        if general_hps.debug_inputs:
-            print_once(f'n_samples: {n_samples}, samples.shape: {samples.shape}, n_seen: {int(np.prod(samples.shape))}')
         stft = librosa.core.stft(np.mean(samples, axis=1), hps.n_fft, hop_length=hps.hop_length, win_length=hps.window_size)
         spec = np.absolute(stft)
         spec_norm_total += np.linalg.norm(spec)
@@ -41,7 +39,6 @@ def calculate_bandwidth(dataset, hps, duration=600):
         total += np.sum(samples)
         total_sq += np.sum(samples ** 2)
         idx += max(16, dist.get_world_size())
-        assert idx < len(dataset), f'The dataset length should be a multiple of 16'
 
     if dist.is_available():
         from jukebox.utils.dist_utils import allreduce
