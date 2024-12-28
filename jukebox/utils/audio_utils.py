@@ -20,6 +20,7 @@ class STFTValues:
         self.window_size = window_size
 
 def calculate_bandwidth(dataset, hps, duration=600):
+    general_hps = hps
     hps = DefaultSTFTValues(hps)
     n_samples = int(dataset.sr * duration)
     l1, total, total_sq, n_seen, idx = 0.0, 0.0, 0.0, 0.0, dist.get_rank()
@@ -29,7 +30,7 @@ def calculate_bandwidth(dataset, hps, duration=600):
         if isinstance(x, (tuple, list)):
             x, y = x
         samples = x.astype(np.float64)
-        if hps.debug_inputs:
+        if general_hps.debug_inputs:
             print_once(f'n_seen: {int(np.prod(samples.shape))}')
         stft = librosa.core.stft(np.mean(samples, axis=1), hps.n_fft, hop_length=hps.hop_length, win_length=hps.window_size)
         spec = np.absolute(stft)
