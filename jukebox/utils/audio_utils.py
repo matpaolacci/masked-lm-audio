@@ -20,12 +20,13 @@ class STFTValues:
         self.window_size = window_size
 
 def calculate_bandwidth(dataset, hps, duration=600):
+    general_hps = hps
     hps = DefaultSTFTValues(hps)
     n_samples = int(dataset.sr * duration)
-    assert n_samples < len(dataset) * dataset.sr, f'Not enough samples in dataset to calculate bandwidth. Requested {n_samples}, got {len(dataset) * dataset.sr}'
+    assert n_samples < (len(dataset)//16) * general_hps.sample_length, f"n_samples:{n_samples}, provided: {(len(dataset)//16) * general_hps.sample_length}"
     l1, total, total_sq, n_seen, idx = 0.0, 0.0, 0.0, 0.0, dist.get_rank()
     spec_norm_total, spec_nelem = 0.0, 0.0
-    while n_seen < n_samples:
+    while n_seen < n_samples: # n_samples = 600 seconds
         x = dataset[idx]
         if isinstance(x, (tuple, list)):
             x, y = x
