@@ -38,6 +38,7 @@ def calculate_bandwidth(dataset, hps, duration=600):
         total += np.sum(samples)
         total_sq += np.sum(samples ** 2)
         idx += max(16, dist.get_world_size())
+        assert idx < len(dataset), f'The dataset len should be a multiple of 16'
 
     if dist.is_available():
         from jukebox.utils.dist_utils import allreduce
