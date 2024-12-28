@@ -11,6 +11,7 @@ class DefaultSTFTValues:
         self.n_fft = 2048
         self.hop_length = 256
         self.window_size = 6 * self.hop_length
+        self.idx_increment = 16 if hps.stft_idx_increment is None else hps.stft_idx_increment
 
 class STFTValues:
     def __init__(self, hps, n_fft, hop_length, window_size):
@@ -23,7 +24,8 @@ def calculate_bandwidth(dataset, hps, duration=600):
     general_hps = hps
     hps = DefaultSTFTValues(hps)
     n_samples = int(dataset.sr * duration)
-    assert n_samples < (len(dataset)//16) * general_hps.sample_length, f"n_samples:{n_samples}, provided: {(len(dataset)//16) * general_hps.sample_length}"
+    assert n_samples < (len(dataset)//hps.idx_increment) * general_hps.sample_length, \
+        f"n_samples:{n_samples}, got :{(len(dataset)//hps.idx_increment) * general_hps.sample_length}"
     l1, total, total_sq, n_seen, idx = 0.0, 0.0, 0.0, 0.0, dist.get_rank()
     spec_norm_total, spec_nelem = 0.0, 0.0
     while n_seen < n_samples: # n_samples = 600 seconds
@@ -39,7 +41,7 @@ def calculate_bandwidth(dataset, hps, duration=600):
         l1 += np.sum(np.abs(samples))
         total += np.sum(samples)
         total_sq += np.sum(samples ** 2)
-        idx += max(16, dist.get_world_size())
+        idx += max(hps.idx_increment, dist.get_world_size())
 
     if dist.is_available():
         from jukebox.utils.dist_utils import allreduce
