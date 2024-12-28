@@ -7,11 +7,12 @@ from jukebox.utils.dist_utils import print_once
 
 class DefaultSTFTValues:
     def __init__(self, hps):
+        self.hps = hps
         self.sr = hps.sr
         self.n_fft = 2048
         self.hop_length = 256
         self.window_size = 6 * self.hop_length
-        self.idx_increment = 16 if hps.stft_idx_increment is None else hps.stft_idx_increment
+        self.idx_increment = hps.stft_idx_increment
 
 class STFTValues:
     def __init__(self, hps, n_fft, hop_length, window_size):

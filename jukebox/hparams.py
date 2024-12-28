@@ -358,6 +358,7 @@ DEFAULTS["data"] = Hyperparams(
     train_test_split=0.9,
     train_shrink_factor=1.0,
     test_shrink_factor=1.0,
+    stft_idx_increment=16,
     p_unk=0.1,
     min_duration=None,
     max_duration=None,
