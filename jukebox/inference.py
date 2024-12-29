@@ -1,4 +1,4 @@
-import fire, sys, torch as t
+import fire, sys, torch as t, os
 from jukebox.data.data_processor import DataProcessor
 from jukebox.hparams import setup_hparams
 from jukebox.train import get_ema
@@ -18,6 +18,7 @@ def inference(model, hps, data_processor, logger):
             forw_kwargs = dict(loss_fn=hps.loss_fn, hps=hps)
             out_batch, loss, _metrics = model(x, **forw_kwargs)
             
+            os.makedirs(f'{logger.logdir}/batch_{i}', exist_ok=True)
             save_wav(f'{logger.logdir}/batch_{i}', out_batch, hps.sr) # take the batch
                 
 
