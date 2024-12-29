@@ -336,6 +336,7 @@ DEFAULTS["script"] = Hyperparams(
     debug_inputs=False,
     local_path='',
     local_logdir='logs',
+    checkpoint_dir='',
     max_len=24,
     max_log=32,
     save=True,

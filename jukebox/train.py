@@ -349,7 +349,8 @@ def run(hps="teeny", port=29500, **kwargs):
                 best_test_loss = test_epochs_losses.mean()
                 if rank == 0:
                     print_once(f"Saving model... Best test loss so far: {best_test_loss}")
-                    save_checkpoint(logger, f'epoch_{epoch}_{best_test_loss:.4f}', distributed_model, opt, dict(step=logger.iters), hps)
+                    assert hps.checkpoint_dir is not None, "Please specify a checkpoint directory through hps.checkpoint_dir"
+                    save_checkpoint(logger, None, distributed_model, opt, dict(step=logger.iters), hps, f'{hps.checkpoint_dir}/epoch_{epoch}_{best_test_loss:.4f}')
         dist.barrier()
 
 if __name__ == '__main__':

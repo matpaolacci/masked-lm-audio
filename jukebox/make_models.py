@@ -38,7 +38,7 @@ def load_checkpoint(path):
     print("Restored from {}".format(restore))
     return checkpoint
 
-def save_checkpoint(logger, name, model, opt, metrics, hps):
+def save_checkpoint(logger, name, model, opt, metrics, hps, full_path_name = None):
     with t.no_grad():
         save_hps = {**hps}
         save_hps = {k: v for k,v in save_hps.items() if k not in ['metadata_v2','metadata_v3', 'alignments', 'lyric_processor', 'midi_processor']}
@@ -46,7 +46,7 @@ def save_checkpoint(logger, name, model, opt, metrics, hps):
                 'model': model.state_dict(), # should also save bottleneck k's as buffers
                 'opt': opt.state_dict() if opt is not None else None,
                 'step': logger.iters,
-                **metrics}, f'{logger.logdir}/checkpoint_{name}.pth.tar')
+                **metrics}, f'{logger.logdir}/checkpoint_{name}.pth.tar' if full_path_name is None else full_path_name)
     return
 
 def restore_model(hps, model, checkpoint_path):
