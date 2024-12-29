@@ -58,6 +58,11 @@ vqvae = Hyperparams(
 )
 HPARAMS_REGISTRY["vqvae"] = vqvae
 
+inference = Hyperparams(
+    path_to_checkpoint=''
+)
+HPARAMS_REGISTRY["inference"] = inference
+
 labels = Hyperparams(
     y_bins=(120, 4111),
     t_bins=128,

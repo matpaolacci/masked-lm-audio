@@ -298,6 +298,8 @@ def run(hps="teeny", port=29500, **kwargs):
     hps.ngpus = dist.get_world_size()
     hps.argv = " ".join(sys.argv)
     hps.bs_sample = hps.nworkers = hps.bs
+    
+    print_once(f"Rank: {rank}, Local Rank: {local_rank}, World Size: {dist.get_world_size()}")
 
     # Setup dataset
     data_processor = DataProcessor(hps)
