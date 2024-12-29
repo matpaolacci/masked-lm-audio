@@ -70,7 +70,7 @@ def restore_opt(opt, shd, checkpoint_path):
     if "step" in checkpoint:
         shd.step(checkpoint['step'])
 
-def make_vqvae(hps, device='cuda'):
+def make_vqvae(hps, device='cuda', audio_channels=1):
     from jukebox.vqvae.vqvae import VQVAE
     block_kwargs = dict(width=hps.width, depth=hps.depth, m_conv=hps.m_conv,
                         dilation_growth_rate=hps.dilation_growth_rate,
@@ -84,7 +84,7 @@ def make_vqvae(hps, device='cuda'):
         hps.sample_length = (hps.sample_length_in_seconds * hps.sr // top_raw_to_tokens) * top_raw_to_tokens
         print(f"Setting sample length to {hps.sample_length} (i.e. {hps.sample_length/hps.sr} seconds) to be multiple of {top_raw_to_tokens}")
 
-    vqvae = VQVAE(input_shape=(hps.sample_length,1), levels=hps.levels, downs_t=hps.downs_t, strides_t=hps.strides_t,
+    vqvae = VQVAE(input_shape=(hps.sample_length,audio_channels), levels=hps.levels, downs_t=hps.downs_t, strides_t=hps.strides_t,
                   emb_width=hps.emb_width, l_bins=hps.l_bins,
                   mu=hps.l_mu, commit=hps.commit,
                   spectral=hps.spectral, multispectral=hps.multispectral,
