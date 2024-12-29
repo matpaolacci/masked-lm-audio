@@ -24,7 +24,7 @@ class OffsetDataset(Dataset):
 class DataProcessor():
     def __init__(self, hps):
         self.dataset = FilesAudioDataset(hps)
-        duration = 1 if hps.prior else 600
+        duration = 1 if hps.prior else hps.bandwidth_duration
         hps.bandwidth = calculate_bandwidth(self.dataset, hps, duration=duration)
         self.create_datasets(hps)
         self.create_samplers(hps)

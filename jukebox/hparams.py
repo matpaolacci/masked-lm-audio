@@ -557,6 +557,7 @@ DEFAULTS["audio"] = Hyperparams(
     sample_length=0,
     sample_hop_length=30000,
     max_silence_pad_length=0,
+    bandwidth_duration=600,
     ignore_boundaries=False,
     use_nonrelative_specloss=True,
     multispec_loss_n_fft=(2048,1024,512),
