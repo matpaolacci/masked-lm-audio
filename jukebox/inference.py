@@ -35,7 +35,7 @@ def run(hps="teeny", port=29500, **kwargs):
     data_processor = DataProcessor(hps)
     
     # Setup model
-    vqvae = make_vqvae(hps, 2)
+    vqvae = make_vqvae(hps, device, 2)
     
     logger, metrics = init_logging(hps, local_rank, rank)
     logger.iters = vqvae.step
