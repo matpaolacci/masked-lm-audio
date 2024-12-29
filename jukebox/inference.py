@@ -6,20 +6,20 @@ import jukebox.utils.dist_adapter as dist
 from make_models import make_vqvae
 from train import evaluate, get_ddp
 from utils.logger import init_logging
-from utils.audio_utils import save_wav, audio_preprocess
+from utils.audio_utils import save_wav_2, audio_preprocess
 
 def inference(model, hps, data_processor, logger):
     model.eval()
     with t.no_grad():
         for i, x in logger.get_range(data_processor.test_loader):
             x = x.to('cuda', non_blocking=True)
-            x_in = x = audio_preprocess(x, hps)
+            x = audio_preprocess(x, hps)
             
             forw_kwargs = dict(loss_fn=hps.loss_fn, hps=hps)
             out_batch, loss, _metrics = model(x, **forw_kwargs)
             
-            os.makedirs(f'{logger.logdir}/batch_{i}', exist_ok=True)
-            save_wav(f'{logger.logdir}/batch_{i}', out_batch, hps.sr) # take the batch
+            save_wav_2(f'{logger.logdir}/batch_{i}', x, hps.sr) # take the batch
+            save_wav_2(f'{logger.logdir}/batch_{i}', out_batch, hps.sr) # take the batch
                 
 
 def run(hps="teeny", port=29500, **kwargs):
