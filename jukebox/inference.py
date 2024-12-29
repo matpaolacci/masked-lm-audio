@@ -3,7 +3,7 @@ from jukebox.data.data_processor import DataProcessor
 from jukebox.hparams import setup_hparams
 from jukebox.train import get_ema
 import jukebox.utils.dist_adapter as dist
-from make_models import load_checkpoint
+from make_models import make_vqvae
 from train import evaluate, get_ddp
 from utils.logger import init_logging
 import torch as t
@@ -35,8 +35,7 @@ def run(hps="teeny", port=29500, **kwargs):
     data_processor = DataProcessor(hps)
     
     # Setup model
-    vqvae = load_checkpoint(hps.path_to_checkpoint)
-    vqvae.to(device)
+    vqvae = make_vqvae(hps)
     
     logger, metrics = init_logging(hps, local_rank, rank)
     logger.iters = vqvae.step

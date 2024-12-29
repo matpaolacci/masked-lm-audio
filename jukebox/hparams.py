@@ -346,10 +346,6 @@ DEFAULTS["script"] = Hyperparams(
     func='',
 )
 
-DEFAULTS["inference"] = Hyperparams(
-    path_to_checkpoint=''   
-)
-
 DEFAULTS["data"] = Hyperparams(
     audio_files_dir='',
     finetune='',
