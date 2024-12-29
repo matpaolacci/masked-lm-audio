@@ -344,9 +344,8 @@ def run(hps="teeny", port=29500, **kwargs):
                 print('Ema',' '.join([f'{key}: {val:0.4f}' for key,val in test_metrics.items()]))
             dist.barrier()
             if ema: ema.swap()
-            print_once(f"test_epochs_losses BEFORE: {test_epochs_losses}")
+            print_once(f"loss: {test_metrics['loss']}")
             np.append(test_epochs_losses, test_metrics['loss'])
-            print_once(f"test_epochs_losses AFTER: {test_epochs_losses}")
             if test_epochs_losses.mean() < best_test_loss:
                 best_test_loss = test_epochs_losses.mean()
                 if rank == 0:
