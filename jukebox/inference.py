@@ -13,13 +13,13 @@ def inference(model, hps, data_processor, logger):
     with t.no_grad():
         for i, x in logger.get_range(data_processor.test_loader):
             x = x.to('cuda', non_blocking=True)
-            x = audio_preprocess(x, hps)
+            x_original = audio_preprocess(x, hps)
             
             forw_kwargs = dict(loss_fn=hps.loss_fn, hps=hps)
-            out_batch, loss, _metrics = model(x, **forw_kwargs)
+            x_recon, loss, _metrics = model(x_original, **forw_kwargs)
             
-            save_wav_2(f'{logger.logdir}/batch_{i}', x, hps.sr) # take the batch
-            save_wav_2(f'{logger.logdir}/batch_{i}', out_batch, hps.sr) # take the batch
+            save_wav_2(f'{logger.logdir}/batch_{i}', x, hps.sr, is_original=True)
+            save_wav_2(f'{logger.logdir}/batch_{i}', x_recon, hps.sr)
                 
 
 def run(hps="teeny", port=29500, **kwargs):
