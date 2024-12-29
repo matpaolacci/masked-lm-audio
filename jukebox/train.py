@@ -322,7 +322,6 @@ def run(hps="teeny", port=29500, **kwargs):
     logger, metrics = init_logging(hps, local_rank, rank)
     logger.iters = model.step
     
-    test_epochs_losses = np.array([])
     best_test_loss = np.inf
 
     # Run training, eval, sample
@@ -344,9 +343,9 @@ def run(hps="teeny", port=29500, **kwargs):
                 print('Ema',' '.join([f'{key}: {val:0.4f}' for key,val in test_metrics.items()]))
             dist.barrier()
             if ema: ema.swap()
-            test_epochs_losses = np.append(test_epochs_losses, test_metrics['loss'])
-            if test_epochs_losses.mean() < best_test_loss:
-                best_test_loss = test_epochs_losses.mean()
+            current_loss = test_metrics['loss']
+            if current_loss < best_test_loss:
+                best_test_loss = current_loss
                 if rank == 0:
                     print_once(f"Saving model... Best test loss so far: {best_test_loss}")
                     assert hps.checkpoint_dir is not None, "Please specify a checkpoint directory through hps.checkpoint_dir"
