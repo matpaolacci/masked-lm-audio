@@ -1,4 +1,4 @@
-import fire, sys
+import fire, sys, torch as t
 from jukebox.data.data_processor import DataProcessor
 from jukebox.hparams import setup_hparams
 from jukebox.train import get_ema
@@ -6,15 +6,15 @@ import jukebox.utils.dist_adapter as dist
 from make_models import make_vqvae
 from train import evaluate, get_ddp
 from utils.logger import init_logging
-import torch as t
-from utils.audio_utils import save_wav
+from utils.audio_utils import save_wav, audio_preprocess
 
 def inference(model, hps, data_processor, logger):
     model.eval()
     with t.no_grad():
         for i, x in logger.get_range(data_processor.test_loader):
             x = x.to('cuda', non_blocking=True)
-                
+            x_in = x = audio_preprocess(x, hps)
+            
             forw_kwargs = dict(loss_fn=hps.loss_fn, hps=hps)
             out_batch, loss, _metrics = model(x, **forw_kwargs)
             
