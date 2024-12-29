@@ -7,6 +7,7 @@ from make_models import make_vqvae
 from train import evaluate, get_ddp
 from utils.logger import init_logging
 from utils.audio_utils import save_wav_2, audio_preprocess
+from jukebox.utils.dist_utils import print_once
 
 def inference(model, hps, data_processor, logger):
     model.eval()
@@ -17,7 +18,7 @@ def inference(model, hps, data_processor, logger):
             
             forw_kwargs = dict(loss_fn=hps.loss_fn, hps=hps)
             x_recon, loss, _metrics = model(x_original, **forw_kwargs)
-            
+            print_once(f"x_recon.shape: {x_recon.shape}")
             save_wav_2(f'{logger.logdir}/batch_{i}', x, hps.sr, is_original=True)
             save_wav_2(f'{logger.logdir}/batch_{i}', x_recon, hps.sr)
                 
