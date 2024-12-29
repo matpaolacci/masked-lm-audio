@@ -344,13 +344,13 @@ def run(hps="teeny", port=29500, **kwargs):
                 print('Ema',' '.join([f'{key}: {val:0.4f}' for key,val in test_metrics.items()]))
             dist.barrier()
             if ema: ema.swap()
-            print_once(f"loss: {test_metrics['loss']}")
-            np.append(test_epochs_losses, test_metrics['loss'])
+            print_once(f"loss: {test_metrics['loss']}, rank: {rank}, loss.type: {type(test_metrics['loss'])}")
+            """np.append(test_epochs_losses, test_metrics['loss'])
             if test_epochs_losses.mean() < best_test_loss:
                 best_test_loss = test_epochs_losses.mean()
                 if rank == 0:
                     print_once(f"Saving model... Best test loss so far: {best_test_loss}")
-                    save_checkpoint(logger, f'epoch_{epoch}_{best_test_loss:.4f}', distributed_model, opt, dict(step=logger.iters), hps)
+                    save_checkpoint(logger, f'epoch_{epoch}_{best_test_loss:.4f}', distributed_model, opt, dict(step=logger.iters), hps)"""
         dist.barrier()
 
 if __name__ == '__main__':
