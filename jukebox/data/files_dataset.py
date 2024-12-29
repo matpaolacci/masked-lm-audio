@@ -1,5 +1,6 @@
 import librosa
 import math
+import os
 import numpy as np
 import jukebox.utils.dist_adapter as dist
 from torch.utils.data import Dataset
@@ -8,6 +9,13 @@ from jukebox.utils.io import get_duration_sec, load_audio
 from jukebox.data.labels import Labeller
 
 class FilesAudioDataset(Dataset):
+    '''The dataset is composed by chunks of audio each one of length sample_length. 
+        Therefore, for example, if we have N audio files and duration_in_sec_i is the duration in seconds of the i-th file
+        
+        So we will have cumsum / sample_length elements in the dataset.
+        
+        Therefore in order to return each chunk in the __get_item__ method we need to know the index of the file and the offset in the file.
+    '''
     def __init__(self, hps):
         super().__init__()
         self.sr = hps.sr
@@ -20,8 +28,12 @@ class FilesAudioDataset(Dataset):
         self.aug_shift = hps.aug_shift
         self.labels = hps.labels
         self.init_dataset(hps)
+        # self.cumsum : cumulative sum of durations (duration_in_seconds * sr) of all songs
 
     def filter(self, files, durations):
+        '''
+            @param durations: list of durations calculated as duration_in_seconds * sr
+        '''
         # Remove files too short or too long
         keep = []
         for i in range(len(files)):
@@ -96,7 +108,7 @@ class FilesAudioDataset(Dataset):
         return self.get_song_chunk(index, offset, test)
 
     def __len__(self):
-        return int(np.floor(self.cumsum[-1] / self.sample_length))
+        return int(np.floor(self.cumsum[-1] / self.sample_length)) # The number of elements in the dataset is given by (total_duration_of_all_songs * sr) / sample_length
 
     def __getitem__(self, item):
         return self.get_item(item)
