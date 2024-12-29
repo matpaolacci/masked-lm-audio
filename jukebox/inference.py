@@ -5,7 +5,7 @@ from jukebox.train import get_ema
 import jukebox.utils.dist_adapter as dist
 from make_models import load_checkpoint
 from train import evaluate, get_ddp
-from logging import init_logging
+from utils.logger import init_logging
 import torch as t
 from utils.audio_utils import save_wav
 
