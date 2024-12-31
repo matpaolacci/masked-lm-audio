@@ -126,6 +126,7 @@ class BottleneckBlock(nn.Module):
         return x
 
     def encode(self, x):
+        '''Returns a sequence of indexes. Each index is the index location of a code in the codebook "self.k"'''
         N, width, T = x.shape
 
         # Preprocess.
