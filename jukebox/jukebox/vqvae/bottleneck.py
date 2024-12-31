@@ -112,6 +112,9 @@ class BottleneckBlock(nn.Module):
     def quantise(self, x):
         # Calculate latent code x_l
         k_w = self.k.t()
+        
+        # Distance has shape (N * L, k_bins) that means for each element in the sequence outputed by the encoder
+        #   we have the distances to each of the k_bins.
         distance = t.sum(x ** 2, dim=-1, keepdim=True) - 2 * t.matmul(x, k_w) + t.sum(k_w ** 2, dim=0,
                                                                                             keepdim=True)  # (N * L, b)
         min_distance, x_l = t.min(distance, dim=-1)
@@ -147,6 +150,10 @@ class BottleneckBlock(nn.Module):
         return x_d
 
     def forward(self, x, update_k=True):
+        '''
+        @Returns:
+            x_l: latent code
+        '''
         N, width, T = x.shape
 
         # Preprocess
@@ -180,6 +187,7 @@ class BottleneckBlock(nn.Module):
 
 
 class Bottleneck(nn.Module):
+    '''For each layer instantiace a BottleneckBlock which contains its own codebook'''
     def __init__(self, l_bins, emb_width, mu, levels):
         super().__init__()
         self.levels = levels
