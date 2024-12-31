@@ -117,7 +117,7 @@ class BottleneckBlock(nn.Module):
         #   we have the distances to each of the k_bins.
         distance = t.sum(x ** 2, dim=-1, keepdim=True) - 2 * t.matmul(x, k_w) + t.sum(k_w ** 2, dim=0,
                                                                                             keepdim=True)  # (N * L, b)
-        min_distance, x_l = t.min(distance, dim=-1)
+        min_distance, x_l = t.min(distance, dim=-1) # x_l are the indices of the closest k_bins
         fit = t.mean(min_distance)
         return x_l, fit
 
