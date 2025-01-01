@@ -29,7 +29,7 @@ def inference_on_top_vqvae(model: VQVAE, hps, data_processor, logger):
             x_original = audio_preprocess(x, hps)
             
             x_l = model.encode(x_original) # [indexes_level_0, indexes_level_1, indexes_level_2]
-            print_once(f"x_l.shape: {x_l.shape}")
+            print_once(f"x_l.shape: {len(x_l)}")
             x_recon = model.decode(x_l, start_level=2)
             
             assert x_recon.shape == x_original.shape, f"x_recon.shape={x_recon.shape} != x_original.shape={x_original.shape}"
