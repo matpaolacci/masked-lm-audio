@@ -1,13 +1,12 @@
 import fire, sys, torch as t, os
 from jukebox.data.data_processor import DataProcessor
 from jukebox.hparams import setup_hparams
-from jukebox.train import get_ema
 import jukebox.utils.dist_adapter as dist
 from make_models import make_vqvae
-from train import evaluate, get_ddp
 from utils.logger import init_logging
 from utils.audio_utils import save_wav_2, audio_preprocess
 from jukebox.vqvae.vqvae import VQVAE
+from jukebox.utils.dist_utils import print_once
 
 def inference(model, hps, data_processor, logger):
     model.eval()
@@ -30,6 +29,7 @@ def inference_on_top_vqvae(model: VQVAE, hps, data_processor, logger):
             x_original = audio_preprocess(x, hps)
             
             x_l = model.encode(x_original) # [indexes_level_0, indexes_level_1, indexes_level_2]
+            print_once(f"x_l.shape: {x_l.shape}")
             x_recon = model.decode(x_l, start_level=2)
             
             assert x_recon.shape == x_original.shape, f"x_recon.shape={x_recon.shape} != x_original.shape={x_original.shape}"
