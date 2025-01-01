@@ -7,6 +7,7 @@ from make_models import make_vqvae
 from train import evaluate, get_ddp
 from utils.logger import init_logging
 from utils.audio_utils import save_wav_2, audio_preprocess
+from jukebox.vqvae.vqvae import VQVAE
 
 def inference(model, hps, data_processor, logger):
     model.eval()
@@ -21,6 +22,20 @@ def inference(model, hps, data_processor, logger):
             save_wav_2(f'{logger.logdir}/batch_{i}', x, hps.sr, is_original=True)
             save_wav_2(f'{logger.logdir}/batch_{i}', x_recon, hps.sr)
                 
+def inference_on_top_vqvae(model: VQVAE, hps, data_processor, logger):
+    model.eval()
+    with t.no_grad():
+        for i, x in logger.get_range(data_processor.test_loader):
+            x = x.to('cuda', non_blocking=True)
+            x_original = audio_preprocess(x, hps)
+            
+            x_l = model.encode(x_original)[2] # [indexes_level_0, indexes_level_1, indexes_level_2]
+            x_recon = model.decode(x_l, start_level=2)
+            
+            assert x_recon.shape == x_original.shape, f"x_recon.shape={x_recon.shape} != x_original.shape={x_original.shape}"
+            
+            save_wav_2(f'{logger.logdir}/batch_{i}', x, hps.sr, is_original=True)
+            save_wav_2(f'{logger.logdir}/batch_{i}', x_recon, hps.sr)
 
 def run(hps="teeny", port=29500, **kwargs):
     '''Do inference over a dataset using a trained model and save the results in the specified directory.
