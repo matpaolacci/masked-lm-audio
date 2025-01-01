@@ -28,7 +28,7 @@ def inference_on_top_vqvae(model: VQVAE, hps, data_processor, logger):
             x = x.to('cuda', non_blocking=True)
             x_original = audio_preprocess(x, hps)
             
-            x_l = model.encode(x_original) # [indexes_level_0, indexes_level_1, indexes_level_2]
+            x_l = model.encode(x_original)[2] # [indexes_level_0, indexes_level_1, indexes_level_2]
             print_once(f"x_l.shape: {len(x_l)}")
             x_recon = model.decode(x_l, start_level=2)
             
