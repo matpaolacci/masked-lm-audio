@@ -71,12 +71,15 @@ class VQVAE(nn.Module):
                                         downs_t[:level+1], strides_t[:level+1], **_block_kwargs(level))
         self.encoders = nn.ModuleList()
         self.decoders = nn.ModuleList()
+        
+        # It creates "levels" encoders and "levels" decoders
+        #   - Each encoder has  different  downsampling and stride values
         for level in range(levels):
             self.encoders.append(encoder(level))
             self.decoders.append(decoder(level))
 
         if use_bottleneck:
-            self.bottleneck = Bottleneck(l_bins, emb_width, mu, levels)
+            self.bottleneck: Bottleneck = Bottleneck(l_bins, emb_width, mu, levels)
         else:
             self.bottleneck = NoBottleneck(levels)
 
@@ -135,9 +138,10 @@ class VQVAE(nn.Module):
         return zs[start_level:end_level]
 
     def encode(self, x, start_level=0, end_level=None, bs_chunks=1):
+        '''Return a sequence of indexes, for each level'''
         x_chunks = t.chunk(x, bs_chunks, dim=0)
         zs_list = []
-        for x_i in x_chunks:
+        for x_i in x_chunks: # iterate over the batches
             zs_i = self._encode(x_i, start_level=start_level, end_level=end_level)
             zs_list.append(zs_i)
         zs = [t.cat(zs_level_list, dim=0) for zs_level_list in zip(*zs_list)]

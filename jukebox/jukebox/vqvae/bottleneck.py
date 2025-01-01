@@ -140,6 +140,7 @@ class BottleneckBlock(nn.Module):
         return x_l
 
     def decode(self, x_l):
+        '''Takes a sequence of indexes and returns the related embeddings sequence'''
         N, T = x_l.shape
         width = self.emb_width
 
@@ -198,10 +199,12 @@ class Bottleneck(nn.Module):
             self.level_blocks.append(level_block(level))
 
     def encode(self, xs):
+        '''Returns a list of indexes [indexes_level_0, indexes_level_1, indexes_level_2]'''
         zs = [level_block.encode(x) for (level_block, x) in zip(self.level_blocks, xs)]
         return zs
 
     def decode(self, zs, start_level=0, end_level=None):
+        '''Returns a list of embeddings grouped by each level [embeddings_level_0, embeddings_level_1, embeddings_level_2]'''
         if end_level is None:
             end_level = self.levels
         xs_quantised = [level_block.decode(z) for (level_block, z) in zip(self.level_blocks[start_level:end_level], zs)]

@@ -68,6 +68,7 @@ class Encoder(nn.Module):
             self.level_blocks.append(level_block(level, down_t, stride_t))
 
     def forward(self, x):
+        '''it returns a list containing the output of each EncoderConvBlock in the encoder'''
         N, T = x.shape[0], x.shape[-1]
         emb = self.input_emb_width
         assert_shape(x, (N, emb, T))
