@@ -139,9 +139,9 @@ class VQVAE(nn.Module):
 
     def encode(self, x, start_level=0, end_level=None, bs_chunks=1):
         '''Return a sequence of indexes, for each level'''
-        x_chunks = t.chunk(x, bs_chunks, dim=0)
+        x_chunks = t.chunk(x, bs_chunks, dim=0) # returns a tuple of length "bs_chunks", each element represents a batch
         zs_list = []
-        for x_i in x_chunks: # iterate over the batches
+        for x_i in x_chunks: # for each batch
             zs_i = self._encode(x_i, start_level=start_level, end_level=end_level)
             zs_list.append(zs_i)
         zs = [t.cat(zs_level_list, dim=0) for zs_level_list in zip(*zs_list)]
