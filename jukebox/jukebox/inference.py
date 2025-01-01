@@ -29,6 +29,8 @@ def inference_on_top_vqvae(model: VQVAE, hps, data_processor, logger):
             x_original = audio_preprocess(x, hps)
             print_once(f"x_original.shape: {x_original.shape}")
             x_l = model.encode(x_original, bs_chunks=hps.bs)[2] # [indexes_level_0, indexes_level_1, indexes_level_2]
+            print_once(f"x_l[0][0-1]: [{x_l[0][0]}, {x_l[0][1]}], ...")
+            print_once(f"x_l[1][0-1]: [{x_l[1][0]}, {x_l[1][1]}], ...")
             print_once(f"len(x_l): {len(x_l)}, x_l[0].shape: {x_l[0].shape}, x_l[1].shape: {x_l[1].shape}")
             x_recon = model.decode(x_l, start_level=2, bs_chunks=hps.bs)
             
