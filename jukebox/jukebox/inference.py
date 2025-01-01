@@ -42,6 +42,7 @@ def run(hps="teeny", port=29500, **kwargs):
     '''
     from jukebox.utils.dist_utils import setup_dist_from_mpi
     rank, local_rank, device = setup_dist_from_mpi(port=port)
+    inference_type = kwargs.pop('inference_type') # normal or top
     hps = setup_hparams(hps, kwargs)
     hps.ngpus = dist.get_world_size()
     hps.argv = " ".join(sys.argv)
@@ -56,7 +57,10 @@ def run(hps="teeny", port=29500, **kwargs):
     logger, metrics = init_logging(hps, local_rank, rank)
     logger.iters = vqvae.step
     
-    inference(vqvae, hps, data_processor, logger)
+    if inference_type == 'normal':
+        inference(vqvae, hps, data_processor, logger)
+    else:
+        inference_on_top_vqvae(vqvae, hps, data_processor, logger)
 
 
 if __name__ == '__main__':
