@@ -55,7 +55,7 @@ def encode_and_save(model: VQVAE, hps: Hyperparams, data_processor: DataProcesso
             if track_idx != data_processor.dataset.get_song_index(i):
                 save_embeddings(track_data, f'{logger.logdir}/encoded_data/track_{track_idx}')
                 track_idx = data_processor.dataset.get_song_index(i)
-                track_data = t.tensor([])
+                track_data = t.tensor([], dtype=t.long).cpu()
             x_l = x_l[hps.use_level].cpu()
             x_l = x_l.view(int(x_l.shape[0]*x_l.shape[1]))
             track_data = t.cat((track_data, x_l), dim=0)
