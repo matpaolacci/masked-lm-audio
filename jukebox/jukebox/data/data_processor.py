@@ -39,7 +39,7 @@ class DataProcessor():
         train_len = int(len(self.dataset) * hps.train_test_split)
         if not hps.inference:
             self.train_dataset = OffsetDataset(self.dataset, 0, train_len, test=False)
-        self.test_dataset = OffsetDataset(self.dataset, train_len, len(self.dataset), test=True)
+        self.test_dataset = OffsetDataset(self.dataset, 0 if hps.inference else train_len, len(self.dataset), test=True)
 
     def create_samplers(self, hps):
         if not dist.is_available():
