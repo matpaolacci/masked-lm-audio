@@ -43,7 +43,7 @@ def encode_and_save(model: VQVAE, hps: Hyperparams, data_processor: DataProcesso
     os.makedirs(f'{logger.logdir}/encoded_data', exist_ok=True)
     model.eval()
     with t.no_grad():
-        track_idx = data_processor.dataset.get_song_index(hps.track_name)
+        track_idx = data_processor.dataset.get_song_index(0)
         track_data = t.tensor([])
         for i, x in logger.get_range(data_processor.test_loader):
             x = x.to('cuda', non_blocking=True)
