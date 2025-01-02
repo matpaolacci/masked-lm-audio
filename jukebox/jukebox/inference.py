@@ -38,7 +38,7 @@ def inference_on_level(model: VQVAE, hps, data_processor, logger, use_level):
             save_wav_2(f'{logger.logdir}/batch_{i}', x, hps.sr, is_original=True)
             save_wav_2(f'{logger.logdir}/batch_{i}', x_recon, hps.sr)
 
-def encode_and_save(model: VQVAE, hps, data_processor, logger, use_level):
+def encode_and_save(model: VQVAE, hps, data_processor, logger):
     model.eval()
     with t.no_grad():
         for i, x in logger.get_range(data_processor.test_loader):
@@ -48,16 +48,16 @@ def encode_and_save(model: VQVAE, hps, data_processor, logger, use_level):
             # [indexes_level_0, indexes_level_1, indexes_level_2]
             #   indexes_level_i.shape = (bs, encoded_sequence_length)
             x_l = model.encode(x_original, bs_chunks=hps.bs)
-            save_embeddings(x_l[use_level], f'{logger.logdir}/encoded_data/batch_{i}')
+            save_embeddings(x_l[hps.use_level], f'{logger.logdir}/encoded_data/batch_{i}')
 
 
-def decode_and_save(model: VQVAE, hps, path_to_data, logger, use_level):
-    data: t.Tensor = load_batches_of_embeddings(path_to_data)
+def decode_and_save(model: VQVAE, hps, logger):
+    data: t.Tensor = load_batches_of_embeddings(hps.path_to_encoded_data)
     
     model.eval()
     with t.no_grad():
         for i, batch in enumerate(data):
-            x_recon = model.decode(batch.unsqueeze(0), start_level=use_level, bs_chunks=hps.bs)
+            x_recon = model.decode(batch.unsqueeze(0), start_level=hps.use_level, bs_chunks=hps.bs)
             save_wav_2(f'{logger.logdir}/decoded_data/batch_{i}', x_recon, hps.sr)
     
             
@@ -66,11 +66,6 @@ def run(hps="teeny", port=29500, **kwargs):
     '''
     from jukebox.utils.dist_utils import setup_dist_from_mpi
     rank, local_rank, device = setup_dist_from_mpi(port=port)
-    
-    # custom args
-    use_level = kwargs.pop('use_level')
-    op_type = kwargs.pop('operation_type')
-    path_to_encoded_data = kwargs.pop('path_to_encoded_data')
     
     hps = setup_hparams(hps, kwargs)
     hps.ngpus = dist.get_world_size()
@@ -83,18 +78,18 @@ def run(hps="teeny", port=29500, **kwargs):
     logger, metrics = init_logging(hps, local_rank, rank)
     logger.iters = vqvae.step
 
-    if op_type == "inference":
+    if hps.operation_type == "inference":
         # Setup dataset
         data_processor = DataProcessor(hps)
         inference(vqvae, hps, data_processor, logger)
-    elif op_type == "encode":
+    elif hps.operation_type == "encode":
         # Setup dataset
         data_processor = DataProcessor(hps)
-        encode_and_save(vqvae, hps, data_processor, logger, use_level)
-    elif op_type == "decode":
-        decode_and_save(vqvae, hps, path_to_encoded_data, logger, use_level)
+        encode_and_save(vqvae, hps, data_processor, logger)
+    elif hps.operation_type == "decode":
+        decode_and_save(vqvae, hps, logger)
     else:
-        raise ValueError(f"operation_type={op_type} not supported")
+        raise ValueError(f"operation_type={hps.operation_type} not supported")
 
 
 if __name__ == '__main__':

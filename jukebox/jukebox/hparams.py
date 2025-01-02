@@ -347,6 +347,12 @@ DEFAULTS["script"] = Hyperparams(
     func='',
 )
 
+DEFAULTS["inference"] = Hyperparams(
+    operation_type=None,
+    path_to_encoded_data=None,
+    use_level=None
+)
+
 DEFAULTS["data"] = Hyperparams(
     audio_files_dir='',
     finetune='',
