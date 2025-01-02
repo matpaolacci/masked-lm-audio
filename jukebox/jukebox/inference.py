@@ -59,6 +59,7 @@ def encode_and_save(model: VQVAE, hps: Hyperparams, data_processor: DataProcesso
             x_l = x_l[hps.use_level].cpu()
             x_l = x_l.view(int(x_l.shape[0]*x_l.shape[1]))
             track_data = t.cat((track_data, x_l), dim=0)
+            print(f"i: {i}")
             if i == len(data_processor.test_loader) - 1:
                 save_embeddings(track_data, f'{logger.logdir}/encoded_data/track_{track_idx}')
 
