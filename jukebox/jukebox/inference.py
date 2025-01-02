@@ -8,19 +8,19 @@ from utils.audio_utils import save_wav_2, audio_preprocess, save_embeddings, loa
 from jukebox.vqvae.vqvae import VQVAE
 from jukebox.utils.dist_utils import print_once
 
-def inference(model, hps, data_processor, logger):
-    model.eval()
-    with t.no_grad():
-        for i, x in logger.get_range(data_processor.test_loader):
-            x = x.to('cuda', non_blocking=True)
-            x_original = audio_preprocess(x, hps)
+# def inference(model, hps, data_processor, logger):
+#     model.eval()
+#     with t.no_grad():
+#         for i, x in logger.get_range(data_processor.test_loader):
+#             x = x.to('cuda', non_blocking=True)
+#             x_original = audio_preprocess(x, hps)
             
-            forw_kwargs = dict(loss_fn=hps.loss_fn, hps=hps)
-            x_recon, loss, _metrics = model(x_original, **forw_kwargs)
+#             forw_kwargs = dict(loss_fn=hps.loss_fn, hps=hps)
+#             x_recon, loss, _metrics = model(x_original, **forw_kwargs)
             
-            save_wav_2(f'{logger.logdir}/batch_{i}', x, hps.sr, is_original=True)
-            save_wav_2(f'{logger.logdir}/batch_{i}', x_recon, hps.sr)
-                
+#             save_wav_2(f'{logger.logdir}/batch_{i}', x, hps.sr, is_original=True)
+#             save_wav_2(f'{logger.logdir}/batch_{i}', x_recon, hps.sr)
+
 def inference_on_level(model: VQVAE, hps, data_processor, logger):
     model.eval()
     with t.no_grad():
@@ -37,6 +37,7 @@ def inference_on_level(model: VQVAE, hps, data_processor, logger):
             
             save_wav_2(f'{logger.logdir}/batch_{i}', x, hps.sr, is_original=True)
             save_wav_2(f'{logger.logdir}/batch_{i}', x_recon, hps.sr)
+
 
 def encode_and_save(model: VQVAE, hps, data_processor, logger):
     os.makedirs(f'{logger.logdir}/encoded_data', exist_ok=True)
