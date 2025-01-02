@@ -39,6 +39,7 @@ def inference_on_level(model: VQVAE, hps, data_processor, logger, use_level):
             save_wav_2(f'{logger.logdir}/batch_{i}', x_recon, hps.sr)
 
 def encode_and_save(model: VQVAE, hps, data_processor, logger):
+    os.makedirs(f'{logger.logdir}/encoded_data', exist_ok=True)
     model.eval()
     with t.no_grad():
         for i, x in logger.get_range(data_processor.test_loader):
@@ -52,8 +53,9 @@ def encode_and_save(model: VQVAE, hps, data_processor, logger):
 
 
 def decode_and_save(model: VQVAE, hps, logger):
-    data: t.Tensor = load_batches_of_embeddings(hps.path_to_encoded_data)
+    os.makedirs(f'{logger.logdir}/decoded_data', exist_ok=True)
     
+    data: t.Tensor = load_batches_of_embeddings(hps.path_to_encoded_data)
     model.eval()
     with t.no_grad():
         for i, batch in enumerate(data):
