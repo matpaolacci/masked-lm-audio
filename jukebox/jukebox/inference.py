@@ -21,7 +21,7 @@ def inference(model, hps, data_processor, logger):
             save_wav_2(f'{logger.logdir}/batch_{i}', x, hps.sr, is_original=True)
             save_wav_2(f'{logger.logdir}/batch_{i}', x_recon, hps.sr)
                 
-def inference_on_top_vqvae(model: VQVAE, hps, data_processor, logger):
+def inference_on_level(model: VQVAE, hps, data_processor, logger, use_level):
     model.eval()
     with t.no_grad():
         for i, x in logger.get_range(data_processor.test_loader):
@@ -31,8 +31,8 @@ def inference_on_top_vqvae(model: VQVAE, hps, data_processor, logger):
             # [indexes_level_0, indexes_level_1, indexes_level_2]
             #   indexes_level_i.shape = (bs, encoded_sequence_length)
             x_l = model.encode(x_original, bs_chunks=hps.bs)
-            print_once(f"len(x_l): {len(x_l[2])}")
-            x_recon = model.decode(x_l[2:], start_level=2, bs_chunks=hps.bs)
+            print_once(f"len(x_l): {len(x_l[use_level])}")
+            x_recon = model.decode(x_l[use_level:], start_level=use_level, bs_chunks=hps.bs)
             
             assert x_recon.shape == x_original.shape, f"x_recon.shape={x_recon.shape} != x_original.shape={x_original.shape}"
             
@@ -44,7 +44,7 @@ def run(hps="teeny", port=29500, **kwargs):
     '''
     from jukebox.utils.dist_utils import setup_dist_from_mpi
     rank, local_rank, device = setup_dist_from_mpi(port=port)
-    inference_type = kwargs.pop('inference_type') # normal or top
+    use_level = kwargs.pop('use_level', None)
     hps = setup_hparams(hps, kwargs)
     hps.ngpus = dist.get_world_size()
     hps.argv = " ".join(sys.argv)
@@ -59,10 +59,10 @@ def run(hps="teeny", port=29500, **kwargs):
     logger, metrics = init_logging(hps, local_rank, rank)
     logger.iters = vqvae.step
     
-    if inference_type == 'normal':
+    if use_level == None:
         inference(vqvae, hps, data_processor, logger)
     else:
-        inference_on_top_vqvae(vqvae, hps, data_processor, logger)
+        inference_on_level(vqvae, hps, data_processor, logger, use_level)
 
 
 if __name__ == '__main__':
