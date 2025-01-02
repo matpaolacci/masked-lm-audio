@@ -168,8 +168,7 @@ def load_batches_of_embeddings(path_to_data, hps, model, use_level) -> t.Tensor:
 
 def save_embeddings(embedding_indexes: t.Tensor, fname):
     print_once(f'Saving embeddings to {fname}, embedding shape: {embedding_indexes.shape}')
-    for i, embs in enumerate(embedding_indexes):
-        t.save(embs.cpu(), f'{fname}_item_{i}.pt')
+    t.save(embedding_indexes.cpu(), f'{fname}.pt')
 
 def save_wav(fname, aud, sr):
     # clip before saving?

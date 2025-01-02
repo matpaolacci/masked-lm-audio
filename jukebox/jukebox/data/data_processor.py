@@ -23,7 +23,7 @@ class OffsetDataset(Dataset):
 
 class DataProcessor():
     def __init__(self, hps):
-        self.dataset = FilesAudioDataset(hps)
+        self.dataset: FilesAudioDataset = FilesAudioDataset(hps)
         duration = 1 if hps.prior else hps.bandwidth_duration
         hps.bandwidth = None if hps.inference else calculate_bandwidth(self.dataset, hps, duration=duration)
         self.create_datasets(hps)
