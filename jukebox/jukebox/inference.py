@@ -31,7 +31,6 @@ def inference_on_level(model: VQVAE, hps, data_processor, logger, use_level):
             # [indexes_level_0, indexes_level_1, indexes_level_2]
             #   indexes_level_i.shape = (bs, encoded_sequence_length)
             x_l = model.encode(x_original, bs_chunks=hps.bs)
-            print_once(f"len(x_l): {len(x_l[use_level])}")
             x_recon = model.decode(x_l[use_level:], start_level=use_level, bs_chunks=hps.bs)
             
             assert x_recon.shape == x_original.shape, f"x_recon.shape={x_recon.shape} != x_original.shape={x_original.shape}"
