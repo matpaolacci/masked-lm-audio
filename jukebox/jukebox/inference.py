@@ -72,6 +72,7 @@ def run(hps="teeny", port=29500, **kwargs):
     hps.argv = " ".join(sys.argv)
     hps.bs_sample = hps.nworkers = hps.bs
     hps.inference = True
+    hps.path_to_encoded_data = f'{logger.logdir}/encoded_data'
     
     # Setup model
     vqvae = make_vqvae(hps, device)
