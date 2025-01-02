@@ -21,7 +21,7 @@ def inference(model, hps, data_processor, logger):
             save_wav_2(f'{logger.logdir}/batch_{i}', x, hps.sr, is_original=True)
             save_wav_2(f'{logger.logdir}/batch_{i}', x_recon, hps.sr)
                 
-def inference_on_level(model: VQVAE, hps, data_processor, logger, use_level):
+def inference_on_level(model: VQVAE, hps, data_processor, logger):
     model.eval()
     with t.no_grad():
         for i, x in logger.get_range(data_processor.test_loader):
@@ -31,7 +31,7 @@ def inference_on_level(model: VQVAE, hps, data_processor, logger, use_level):
             # [indexes_level_0, indexes_level_1, indexes_level_2]
             #   indexes_level_i.shape = (bs, encoded_sequence_length)
             x_l = model.encode(x_original, bs_chunks=hps.bs)
-            x_recon = model.decode(x_l[use_level:], start_level=use_level, bs_chunks=hps.bs)
+            x_recon = model.decode(x_l[hps.use_level:], start_level=hps.use_level, bs_chunks=hps.bs)
             
             assert x_recon.shape == x_original.shape, f"x_recon.shape={x_recon.shape} != x_original.shape={x_original.shape}"
             
@@ -85,7 +85,7 @@ def run(hps="teeny", port=29500, **kwargs):
     if hps.operation_type == "inference":
         # Setup dataset
         data_processor = DataProcessor(hps)
-        inference(vqvae, hps, data_processor, logger)
+        inference_on_level(vqvae, hps, data_processor, logger)
     elif hps.operation_type == "encode":
         # Setup dataset
         data_processor = DataProcessor(hps)
