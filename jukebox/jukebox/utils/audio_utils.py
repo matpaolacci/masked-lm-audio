@@ -1,5 +1,5 @@
 import numpy as np
-import torch as t
+import torch as t, os
 import jukebox.utils.dist_adapter as dist
 import soundfile
 import librosa
@@ -143,6 +143,33 @@ def load_audio(file, sr, offset, duration, mono=False):
         x = x.reshape((1, -1))
     return x    
 
+def load_embeddings(fname) -> t.Tensor:
+    return t.load(fname)
+
+def load_batches_of_embeddings(path_to_data, hps, model, use_level) -> t.Tensor:
+    total_element = 0
+    encoded_sequence_length = hps.sample_length // model.hop_lengths[use_level]
+    data = t.tensor([])
+    
+    # Load all file, in each file there are embeddings related to a single audio sample
+    for filename in os.listdir(path_to_data):
+        file_path = os.path.join(path_to_data, filename)
+        if os.path.isfile(file_path):
+            encoded_sequence = load_embeddings(file_path)
+            assert encoded_sequence.shape[0] == encoded_sequence_length, \
+                f'encoded_sequence.shape[0]={encoded_sequence.shape[0]} != encoded_sequence_length={encoded_sequence_length}'
+            t.cat((data, encoded_sequence), dim=0)
+            total_element += 1
+    
+    data = data[:total_element - (total_element % hps.bs)]
+    num_of_batches = total_element // hps.bs
+    data = data.reshape(num_of_batches, hps.bs, encoded_sequence_length)
+    return data
+
+def save_embeddings(embedding_indexes: t.Tensor, fname, bs):
+    print_once(f'Saving embeddings to {fname}, embedding shape: {embedding_indexes.shape}')
+    for i in range(bs):
+        t.save(embedding_indexes[i].cpu(), f'{fname}_item_{i}.pt')
 
 def save_wav(fname, aud, sr):
     # clip before saving?
