@@ -2,7 +2,7 @@ import torch as t
 import jukebox.utils.dist_adapter as dist
 from torch.utils.data.distributed import DistributedSampler
 from torch.utils.data import DataLoader, Dataset, BatchSampler, RandomSampler
-from jukebox.utils.dist_utils import print_all
+from jukebox.utils.dist_utils import print_all, print_once
 from jukebox.utils.audio_utils import calculate_bandwidth
 from jukebox.data.files_dataset import FilesAudioDataset
 
@@ -42,9 +42,13 @@ class DataProcessor():
 
     def create_samplers(self, hps):
         if not dist.is_available():
+            if dist.get_rank() == 0:
+                print_once(f"Distribuited packages is available")
             self.train_sampler = BatchSampler(RandomSampler(self.train_dataset), batch_size=hps.bs, drop_last=True)
             self.test_sampler = BatchSampler(RandomSampler(self.test_dataset), batch_size=hps.bs, drop_last=True)
         else:
+            if dist.get_rank() == 0:
+                print_once(f"Distribuited packages is not available")
             self.train_sampler = DistributedSampler(self.train_dataset)
             self.test_sampler = DistributedSampler(self.test_dataset)
 
