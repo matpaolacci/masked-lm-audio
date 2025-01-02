@@ -44,7 +44,7 @@ def encode_and_save(model: VQVAE, hps: Hyperparams, data_processor: DataProcesso
     model.eval()
     with t.no_grad():
         track_idx = data_processor.dataset.get_song_index(0)
-        track_data = t.tensor([])
+        track_data = t.tensor([]).cpu()
         for i, x in logger.get_range(data_processor.test_loader):
             x = x.to('cuda', non_blocking=True)
             x_original = audio_preprocess(x, hps)
@@ -56,7 +56,8 @@ def encode_and_save(model: VQVAE, hps: Hyperparams, data_processor: DataProcesso
                 save_embeddings(track_data, f'{logger.logdir}/encoded_data/track_{track_idx}')
                 track_idx = data_processor.dataset.get_song_index(i)
                 track_data = t.tensor([])
-            track_data = t.cat((track_data, x_l[hps.use_level]), dim=0)
+            x_l = x_l[hps.use_level].cpu()
+            track_data = t.cat((track_data, x_l.reshape(x_l.shape[0]*x_l.shape[1])), dim=0)
             if i == len(data_processor.test_loader) - 1:
                 save_embeddings(track_data, f'{logger.logdir}/encoded_data/track_{track_idx}')
 
