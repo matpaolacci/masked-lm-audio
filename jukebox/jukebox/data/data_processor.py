@@ -42,15 +42,11 @@ class DataProcessor():
 
     def create_samplers(self, hps):
         if not dist.is_available():
-            if dist.get_rank() == 0:
-                print_once(f"Distribuited packages is available")
             self.train_sampler = BatchSampler(RandomSampler(self.train_dataset), batch_size=hps.bs, drop_last=True)
             self.test_sampler = BatchSampler(RandomSampler(self.test_dataset), batch_size=hps.bs, drop_last=True)
         else:
-            if dist.get_rank() == 0:
-                print_once(f"Distribuited packages is not available")
             self.train_sampler = DistributedSampler(self.train_dataset)
-            self.test_sampler = DistributedSampler(self.test_dataset)
+            self.test_sampler = DistributedSampler(self.test_dataset, shuffle=not hps.inference)
 
     def create_data_loaders(self, hps):
         # Loader to load mini-batches

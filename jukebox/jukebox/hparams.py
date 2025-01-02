@@ -348,6 +348,7 @@ DEFAULTS["script"] = Hyperparams(
 )
 
 DEFAULTS["inference"] = Hyperparams(
+    inference=False,
     operation_type=None,
     path_to_encoded_data=None,
     use_level=None
