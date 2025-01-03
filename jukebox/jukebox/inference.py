@@ -46,7 +46,7 @@ def encode_and_save(model: VQVAE, hps: Hyperparams, data_processor: DataProcesso
         curr_song_data = t.tensor([], dtype=t.long).cpu()
         curr_song_idx = 0
         for i, batch in logger.get_range(data_processor.test_loader):
-            print_once(f"Encoding batch {batch}")
+            print_once(f"Encoding batch {batch.shape}")
             x, song_idx = batch['data'], batch['song_index']
             x_original = audio_preprocess(x, hps)
             
