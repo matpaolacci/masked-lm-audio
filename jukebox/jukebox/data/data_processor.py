@@ -7,19 +7,21 @@ from jukebox.utils.audio_utils import calculate_bandwidth
 from jukebox.data.files_dataset import FilesAudioDataset
 
 class OffsetDataset(Dataset):
-    def __init__(self, dataset, start, end, test=False):
+    def __init__(self, dataset, start, end, test=False, inference=False):
         super().__init__()
         self.dataset = dataset
         self.start = start
         self.end = end
         self.test = test
+        self.inference = inference
         assert 0 <= self.start < self.end <= len(self.dataset)
 
     def __len__(self):
         return self.end - self.start
 
     def __getitem__(self, item):
-        return self.dataset.get_item(self.start + item, test=self.test) if not self.inference else self.dataset.get_song_chunk_with_index()
+        return self.dataset.get_item(self.start + item, test=self.test) \
+            if not self.inference else self.dataset.get_song_chunk_with_index()
 
 class DataProcessor():
     def __init__(self, hps):
@@ -39,7 +41,7 @@ class DataProcessor():
         train_len = int(len(self.dataset) * hps.train_test_split)
         if not hps.inference:
             self.train_dataset = OffsetDataset(self.dataset, 0, train_len, test=False)
-        self.test_dataset = OffsetDataset(self.dataset, 0 if hps.inference else train_len, len(self.dataset), test=True)
+        self.test_dataset = OffsetDataset(self.dataset, 0 if hps.inference else train_len, len(self.dataset), test=True, inference=True)
 
     def create_samplers(self, hps):
         if not dist.is_available():
