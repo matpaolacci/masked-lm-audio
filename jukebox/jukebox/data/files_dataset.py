@@ -31,7 +31,6 @@ class FilesAudioDataset(Dataset):
         self.curr_index_song = 0
         self.curr_offset_song = 0
         self.inference = hps.inference
-        print_once("I'm here in the __init__!")
         # self.cumsum : cumulative sum of durations (duration_in_seconds * sr) of all songs
 
     def filter(self, files, durations):
@@ -108,6 +107,7 @@ class FilesAudioDataset(Dataset):
             return data.T
 
     def get_item(self, item, test=False):
+        print_once("get_item -------------------------------------------------")
         index, offset = self.get_index_offset(item)
         return self.get_song_chunk(index, offset, test)
     
