@@ -107,7 +107,6 @@ class FilesAudioDataset(Dataset):
             return data.T
 
     def get_item(self, item, test=False):
-        print_once("get_item -------------------------------------------------")
         index, offset = self.get_index_offset(item)
         return self.get_song_chunk(index, offset, test)
     
@@ -147,4 +146,5 @@ class FilesAudioDataset(Dataset):
         return int(np.floor(self.cumsum[-1] / self.sample_length)) # The number of elements in the dataset is given by (total_duration_of_all_songs * sr) / sample_length
 
     def __getitem__(self, item):
+        print_once("I'm here in the __getitem__!")
         return self.get_item(item) if not self.inference else self.get_song_chunk_with_index()
