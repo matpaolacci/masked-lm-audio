@@ -48,7 +48,7 @@ def encode_and_save(model: VQVAE, hps: Hyperparams, data_processor: DataProcesso
         for i, x in logger.get_range(data_processor.test_loader):
             x = x.to('cuda', non_blocking=True)
             x_original = audio_preprocess(x, hps)
-            
+            print_once(f'x_original.shape: {x_original.shape}')
             # [indexes_level_0, indexes_level_1, indexes_level_2]
             #   indexes_level_i.shape = (bs, encoded_sequence_length)
             x_l = model.encode(x_original, bs_chunks=hps.bs)
