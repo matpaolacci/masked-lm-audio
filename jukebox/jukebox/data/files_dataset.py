@@ -129,6 +129,8 @@ class FilesAudioDataset(Dataset):
             duration = self.sample_length - out_of_bounds
             len_zero_padding = self.sample_length - duration
         
+        print_once(f"{filename} - curr_idx: {self.curr_index_song} - curr_offset_song: {self.curr_offset_song}")
+        
         data, sr = load_audio(filename, sr=self.sr, offset=self.curr_offset_song, duration=duration)
         assert data.shape == (self.channels, duration), f'Expected {(self.channels, duration)}, got {data.shape}'
         
