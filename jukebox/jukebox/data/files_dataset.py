@@ -146,5 +146,4 @@ class FilesAudioDataset(Dataset):
         return int(np.floor(self.cumsum[-1] / self.sample_length)) # The number of elements in the dataset is given by (total_duration_of_all_songs * sr) / sample_length
 
     def __getitem__(self, item):
-        print_once("I'm here in the __getitem__!")
-        return self.get_item(item) if not self.inference else self.get_song_chunk_with_index()
+        return self.get_item(item)
