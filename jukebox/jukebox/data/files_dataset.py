@@ -133,7 +133,7 @@ class FilesAudioDataset(Dataset):
         assert data.shape == (self.channels, duration), f'Expected {(self.channels, duration)}, got {data.shape}'
         
         if(len_zero_padding is not None):
-            zero_padding = np.zeros((self.channels, len_zero_padding))
+            zero_padding = np.zeros((self.channels, len_zero_padding), dtype=np.float32)
             data = np.concatenate((data, zero_padding), axis=1)
             
         self.curr_offset_song += duration
