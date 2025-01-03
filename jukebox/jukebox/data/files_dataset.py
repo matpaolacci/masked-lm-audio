@@ -122,7 +122,6 @@ class FilesAudioDataset(Dataset):
             read_data = self.sample_length
             filename, song_duration = self.files[self.curr_index_song], self.durations[self.curr_index_song]
             out_of_bounds = read_data - song_duration
-        print_once("I'm here!")
         # adjust the duration of the audio to read
         if out_of_bounds < 0:
             duration = self.sample_length 
