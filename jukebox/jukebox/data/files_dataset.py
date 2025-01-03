@@ -4,7 +4,7 @@ import os
 import numpy as np
 import jukebox.utils.dist_adapter as dist
 from torch.utils.data import Dataset
-from jukebox.utils.dist_utils import print_all
+from jukebox.utils.dist_utils import print_all, print_once
 from jukebox.utils.io import get_duration_sec, load_audio
 from jukebox.data.labels import Labeller
 
@@ -122,7 +122,7 @@ class FilesAudioDataset(Dataset):
             read_data = self.sample_length
             filename, song_duration = self.files[self.curr_index_song], self.durations[self.curr_index_song]
             out_of_bounds = read_data - song_duration
-        
+        print_once("I'm here!")
         # adjust the duration of the audio to read
         if out_of_bounds < 0:
             duration = self.sample_length 
@@ -140,7 +140,7 @@ class FilesAudioDataset(Dataset):
         self.curr_offset_song += duration
     
         return {'data': data.T,
-                'song_index': filename}
+                'song_index': self.curr_index_song}
         
     def __len__(self):
         return int(np.floor(self.cumsum[-1] / self.sample_length)) # The number of elements in the dataset is given by (total_duration_of_all_songs * sr) / sample_length
