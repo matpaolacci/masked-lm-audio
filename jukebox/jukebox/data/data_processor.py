@@ -21,7 +21,7 @@ class OffsetDataset(Dataset):
 
     def __getitem__(self, item):
         return self.dataset.get_item(self.start + item, test=self.test) \
-            if not self.inference else self.dataset.get_song_chunk_with_index()
+            if not self.inference else self.dataset.get_song_chunk_with_index(item)
 
 class DataProcessor():
     def __init__(self, hps):

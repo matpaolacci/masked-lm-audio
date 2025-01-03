@@ -110,7 +110,7 @@ class FilesAudioDataset(Dataset):
         index, offset = self.get_index_offset(item)
         return self.get_song_chunk(index, offset, test)
     
-    def get_song_chunk_with_index(self) -> dict:
+    def get_song_chunk_with_index(self, item) -> dict:
         read_data = self.curr_offset_song + self.sample_length
         filename, song_duration = self.files[self.curr_index_song], self.durations[self.curr_index_song]
         out_of_bounds = read_data - song_duration
@@ -129,7 +129,7 @@ class FilesAudioDataset(Dataset):
             duration = self.sample_length - out_of_bounds
             len_zero_padding = self.sample_length - duration
         
-        print_once(f"{filename} - curr_idx: {self.curr_index_song} - curr_offset_song: {self.curr_offset_song}")
+        print_once(f"item: {item} - {filename} - curr_idx: {self.curr_index_song} - curr_offset_song: {self.curr_offset_song}")
         
         data, sr = load_audio(filename, sr=self.sr, offset=self.curr_offset_song, duration=duration)
         assert data.shape == (self.channels, duration), f'Expected {(self.channels, duration)}, got {data.shape}'
