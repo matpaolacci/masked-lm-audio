@@ -31,6 +31,7 @@ class FilesAudioDataset(Dataset):
         self.curr_index_song = 0
         self.curr_offset_song = 0
         self.inference = hps.inference
+        print_once("I'm here in the __init__!")
         # self.cumsum : cumulative sum of durations (duration_in_seconds * sr) of all songs
 
     def filter(self, files, durations):
