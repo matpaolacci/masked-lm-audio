@@ -57,6 +57,8 @@ class DataProcessor():
         # Loader to load mini-batches
         if hps.labels:
             collate_fn = lambda batch: tuple(t.stack([t.from_numpy(b[i]) for b in batch], 0) for i in range(2))
+        elif hps.inference:
+            collate_fn = None #lambda batch: t.stack([t.from_numpy(b) for b in batch], 0)
         else:
             collate_fn = lambda batch: t.stack([t.from_numpy(b) for b in batch], 0)
 
