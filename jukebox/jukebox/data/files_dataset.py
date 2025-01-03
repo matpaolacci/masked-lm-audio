@@ -28,6 +28,9 @@ class FilesAudioDataset(Dataset):
         self.aug_shift = hps.aug_shift
         self.labels = hps.labels
         self.init_dataset(hps)
+        self.curr_index_song = 0
+        self.curr_offset_song = 0
+        self.inference = hps.inference
         # self.cumsum : cumulative sum of durations (duration_in_seconds * sr) of all songs
 
     def filter(self, files, durations):
@@ -107,12 +110,40 @@ class FilesAudioDataset(Dataset):
         index, offset = self.get_index_offset(item)
         return self.get_song_chunk(index, offset, test)
     
-    def get_song_index(self, item) -> int:
-        index, _ = self.get_index_offset(item)
-        return index
-
+    def get_song_chunk_with_index(self) -> dict:
+        read_data = self.curr_offset_song + self.sample_length
+        filename, song_duration = self.files[self.curr_index_song], self.durations[self.curr_index_song]
+        out_of_bounds = read_data - song_duration
+        len_zero_padding = None
+        
+        if self.sample_length - out_of_bounds <= 0:
+            # go to next song
+            self.curr_index_song += 1
+            read_data = self.sample_length
+            filename, song_duration = self.files[self.curr_index_song], self.durations[self.curr_index_song]
+            out_of_bounds = read_data - song_duration
+        
+        # adjust the duration of the audio to read
+        if out_of_bounds < 0:
+            duration = self.sample_length 
+        else:
+            duration = self.sample_length - out_of_bounds
+            len_zero_padding = self.sample_length - duration
+        
+        data, sr = load_audio(filename, sr=self.sr, offset=self.curr_offset_song, duration=duration)
+        assert data.shape == (self.channels, self.sample_length), f'Expected {(self.channels, self.sample_length)}, got {data.shape}'
+        
+        if(len_zero_padding is not None):
+            zero_padding = np.zeros((self.channels, len_zero_padding))
+            data = np.concatenate((data, zero_padding), axis=1)
+            
+        self.curr_offset_song += duration
+    
+        return {'data': data.T,
+                'song_index': filename}
+        
     def __len__(self):
         return int(np.floor(self.cumsum[-1] / self.sample_length)) # The number of elements in the dataset is given by (total_duration_of_all_songs * sr) / sample_length
 
     def __getitem__(self, item):
-        return self.get_item(item)
+        return self.get_item(item) if not self.inference else self.get_song_chunk_with_index()

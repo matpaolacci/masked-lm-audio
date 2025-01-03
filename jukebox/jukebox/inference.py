@@ -43,26 +43,24 @@ def encode_and_save(model: VQVAE, hps: Hyperparams, data_processor: DataProcesso
     os.makedirs(f'{logger.logdir}/encoded_data', exist_ok=True)
     model.eval()
     with t.no_grad():
-        track_idx = data_processor.dataset.get_song_index(0)
-        track_data = t.tensor([], dtype=t.long).cpu()
-        for i, x in logger.get_range(data_processor.test_loader):
-            x = x.to('cuda', non_blocking=True)
+        curr_song_data = t.tensor([], dtype=t.long).cpu()
+        curr_song_idx = 0
+        for i, batch in logger.get_range(data_processor.test_loader):
+            x, song_idx = batch['data'], batch['song_index']
             x_original = audio_preprocess(x, hps)
             
             # [indexes_level_0, indexes_level_1, indexes_level_2]
             #   indexes_level_i.shape = (bs, encoded_sequence_length)
             x_l = model.encode(x_original, bs_chunks=hps.bs)
-            if track_idx != data_processor.dataset.get_song_index(i):
-                save_embeddings(track_data, f'{logger.logdir}/encoded_data/track_{track_idx}')
-                track_idx = data_processor.dataset.get_song_index(i)
-                track_data = t.tensor([], dtype=t.long).cpu()
             x_l = x_l[hps.use_level].cpu()
-            x_l = x_l.view(int(x_l.shape[0]*x_l.shape[1]))
-            track_data = t.cat((track_data, x_l), dim=0)
-            print(f"i: {i}; len(data_processor.test_loader): {len(data_processor.test_loader)}")
-            if i == len(data_processor.test_loader) - 1:
-                save_embeddings(track_data, f'{logger.logdir}/encoded_data/track_{track_idx}')
-
+            
+            for i, sample_data in enumerate(x_l):
+                if curr_song_idx != song_idx[i]:
+                    save_embeddings(curr_song_data, f'{logger.logdir}/encoded_data/track_{curr_song_idx}')
+                    curr_song_idx = song_idx[i]
+                    curr_song_data = t.tensor([], dtype=t.long).cpu()
+                else:
+                    curr_song_data = t.cat((curr_song_data, sample_data), dim=0)
 
 def decode_and_save(model: VQVAE, hps, logger):
     os.makedirs(f'{logger.logdir}/decoded_data', exist_ok=True)
