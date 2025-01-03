@@ -130,7 +130,7 @@ class FilesAudioDataset(Dataset):
             len_zero_padding = self.sample_length - duration
         
         data, sr = load_audio(filename, sr=self.sr, offset=self.curr_offset_song, duration=duration)
-        assert data.shape == (self.channels, self.sample_length), f'Expected {(self.channels, self.sample_length)}, got {data.shape}'
+        assert data.shape == (self.channels, duration), f'Expected {(self.channels, duration)}, got {data.shape}'
         
         if(len_zero_padding is not None):
             zero_padding = np.zeros((self.channels, len_zero_padding))
