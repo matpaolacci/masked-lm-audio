@@ -47,7 +47,6 @@ def encode_and_save(model: VQVAE, hps: Hyperparams, data_processor: DataProcesso
         track_data = t.tensor([], dtype=t.long).cpu()
         for i, x in logger.get_range(data_processor.test_loader):
             x = x.to('cuda', non_blocking=True)
-            print_once(f"x.shape: {x.shape}")
             x_original = audio_preprocess(x, hps)
             
             # [indexes_level_0, indexes_level_1, indexes_level_2]
