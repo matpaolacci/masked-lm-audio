@@ -47,7 +47,7 @@ def encode_and_save(model: VQVAE, hps: Hyperparams, data_processor: DataProcesso
         curr_song_idx = 0
         for i, batch in logger.get_range(data_processor.test_loader):
             x, song_idx = batch['data'], batch['song_index']
-            x_original = audio_preprocess(x, hps)
+            x_original = audio_preprocess(x, hps).cuda()
             
             # [indexes_level_0, indexes_level_1, indexes_level_2]
             #   indexes_level_i.shape = (bs, encoded_sequence_length)
