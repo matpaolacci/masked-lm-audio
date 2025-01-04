@@ -45,7 +45,8 @@ def encode_and_save(model: VQVAE, hps: Hyperparams, data_processor: DataProcesso
     with t.no_grad():
         curr_song_data = t.tensor([], dtype=t.long).cpu()
         curr_song_idx = 0
-        for i, batch in logger.get_range(data_processor.test_loader):
+        dataset = data_processor.dataset
+        for num_batch, batch in logger.get_range(data_processor.test_loader):
             x, song_idx = batch['data'], batch['song_index']
             x_original = audio_preprocess(x, hps).cuda()
             
@@ -54,11 +55,16 @@ def encode_and_save(model: VQVAE, hps: Hyperparams, data_processor: DataProcesso
             x_l = model.encode(x_original, bs_chunks=hps.bs)
             x_l = x_l[hps.use_level].cpu()
             
-            for i, sample_data in enumerate(x_l):
-                if curr_song_idx != song_idx[i]:
-                    save_embeddings(curr_song_data, f'{logger.logdir}/encoded_data/track_{curr_song_idx}')
-                    curr_song_idx = song_idx[i]
+            for num_sample, sample_data in enumerate(x_l):
+                if curr_song_idx != song_idx[num_sample]:
+                    song_name = os.path.basename(dataset.files[curr_song_idx])
+                    save_embeddings(curr_song_data, f'{logger.logdir}/encoded_data/track_{song_name}')
+                    curr_song_idx = song_idx[num_sample]
                     curr_song_data = t.tensor([], dtype=t.long).cpu()
+                elif num_batch == len(data_processor.test_loader) - 1 and \
+                    num_sample == len(hps.batch_size) - 1:
+                    song_name = os.path.basename(dataset.files[curr_song_idx])
+                    save_embeddings(curr_song_data, f'{logger.logdir}/encoded_data/track_{song_name}')
                 else:
                     curr_song_data = t.cat((curr_song_data, sample_data), dim=0)
 
