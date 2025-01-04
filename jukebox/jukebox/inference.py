@@ -58,13 +58,13 @@ def encode_and_save(model: VQVAE, hps: Hyperparams, data_processor: DataProcesso
             for num_sample, sample_data in enumerate(x_l):
                 if curr_song_idx != song_idx[num_sample]:
                     song_name = os.path.basename(dataset.files[curr_song_idx])
-                    save_embeddings(curr_song_data, f'{logger.logdir}/encoded_data/track_{song_name}')
+                    save_embeddings(curr_song_data, f'{logger.logdir}/encoded_data/{song_name}')
                     curr_song_idx = song_idx[num_sample]
                     curr_song_data = t.tensor([], dtype=t.long).cpu()
                 elif num_batch == len(data_processor.test_loader) - 1 and \
                     num_sample == len(hps.batch_size) - 1:
                     song_name = os.path.basename(dataset.files[curr_song_idx])
-                    save_embeddings(curr_song_data, f'{logger.logdir}/encoded_data/track_{song_name}')
+                    save_embeddings(curr_song_data, f'{logger.logdir}/encoded_data/{song_name}')
                 else:
                     curr_song_data = t.cat((curr_song_data, sample_data), dim=0)
 
