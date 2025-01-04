@@ -156,7 +156,7 @@ def load_batches_of_embeddings(path_to_data, hps, model, use_level) -> t.Tensor:
         file_path = os.path.join(path_to_data, filename)
         if os.path.isfile(file_path):
             encoded_sequence = load_embeddings(file_path)
-            t.cat((data, encoded_sequence), dim=0)
+            data = t.cat((data, encoded_sequence), dim=0)
             total_element += 1
     
     print_once(f'Shape of loaded data: {data.shape}')
