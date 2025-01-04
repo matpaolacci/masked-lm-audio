@@ -71,7 +71,7 @@ def encode_and_save(model: VQVAE, hps: Hyperparams, data_processor: DataProcesso
 def decode_and_save(model: VQVAE, hps, logger):
     os.makedirs(f'{logger.logdir}/decoded_data', exist_ok=True)
     
-    data: t.Tensor = load_batches_of_embeddings(hps.path_to_encoded_data)
+    data: t.Tensor = load_batches_of_embeddings(hps.path_to_encoded_data, hps, model, hps.use_level)
     model.eval()
     with t.no_grad():
         for i, batch in enumerate(data):
