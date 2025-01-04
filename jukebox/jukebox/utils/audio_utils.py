@@ -149,7 +149,7 @@ def load_embeddings(fname) -> t.Tensor:
 def load_batches_of_embeddings(path_to_data, hps, model, use_level) -> t.Tensor:
     total_element = 0
     encoded_sequence_length = hps.sample_length // model.hop_lengths[use_level]
-    data = t.tensor([])
+    data = t.tensor([], dtype=t.long)
     
     # Load all file, in each file there are embeddings related to a single audio sample
     for filename in os.listdir(path_to_data):
