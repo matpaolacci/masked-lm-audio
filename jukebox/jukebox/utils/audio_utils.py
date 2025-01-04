@@ -147,7 +147,6 @@ def load_embeddings(fname) -> t.Tensor:
     return t.load(fname)
 
 def load_batches_of_embeddings(path_to_data, hps, model, use_level) -> t.Tensor:
-    total_element = 0
     encoded_sequence_length = hps.sample_length // model.hop_lengths[use_level]
     data = t.tensor([], dtype=t.long)
     
@@ -157,11 +156,12 @@ def load_batches_of_embeddings(path_to_data, hps, model, use_level) -> t.Tensor:
         if os.path.isfile(file_path):
             encoded_sequence = load_embeddings(file_path)
             data = t.cat((data, encoded_sequence), dim=0)
-            total_element += 1
     
     print_once(f'Shape of loaded data: {data.shape}')
-    data = data[:total_element - (total_element % hps.bs)]
-    num_of_batches = total_element // hps.bs
+    num_of_encoded_samples = data.shape[0] // encoded_sequence_length
+    num_of_embs_to_remove = (num_of_encoded_samples % hps.bs) * encoded_sequence_length
+    data = data[:data.shape[0] - num_of_embs_to_remove]
+    num_of_batches = (data.shape[0] / encoded_sequence_length) / hps.bs
     data = data.reshape(num_of_batches, hps.bs, encoded_sequence_length)
     return data
 
