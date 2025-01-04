@@ -119,6 +119,7 @@ class FilesAudioDataset(Dataset):
         if self.sample_length - out_of_bounds <= 0:
             # go to next song
             self.curr_index_song += 1
+            self.curr_offset_song = 0
             read_data = self.sample_length
             filename, song_duration = self.files[self.curr_index_song], self.durations[self.curr_index_song]
             out_of_bounds = read_data - song_duration
