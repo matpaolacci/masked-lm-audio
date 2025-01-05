@@ -147,6 +147,7 @@ def load_embeddings(fname) -> t.Tensor:
     return t.load(fname)
 
 def load_batches_of_embeddings(hps, model) -> t.Tensor:
+    '''Returns a tensor on cuda'''
     encoded_sequence_length = hps.sample_length // model.hop_lengths[hps.use_level]
     data = t.tensor([], dtype=t.long)
     
@@ -164,7 +165,7 @@ def load_batches_of_embeddings(hps, model) -> t.Tensor:
     data = data[:data.shape[0] - num_of_embs_to_remove]
     num_of_batches = int((data.shape[0] / encoded_sequence_length) / hps.bs)
     data = data.reshape(num_of_batches, hps.bs, encoded_sequence_length)
-    return data
+    return data.cuda()
 
 def save_embeddings(embedding_indexes: t.Tensor, fname):
     print_once(f'Saving embeddings to {fname}, embedding shape: {embedding_indexes.shape}')
