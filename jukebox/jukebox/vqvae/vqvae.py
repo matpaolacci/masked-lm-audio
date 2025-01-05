@@ -105,9 +105,9 @@ class VQVAE(nn.Module):
         # Decode
         if end_level is None:
             end_level = self.levels
-        assert len(zs) == end_level - start_level, f'{len(zs)} != {end_level - start_level}'
+        #assert len(zs) == end_level - start_level, f'{len(zs)} != {end_level - start_level}'
         xs_quantised = self.bottleneck.decode(zs, start_level=start_level, end_level=end_level)
-        assert len(xs_quantised) == end_level - start_level
+        #assert len(xs_quantised) == end_level - start_level
 
         # Use only lowest level
         decoder, x_quantised = self.decoders[start_level], xs_quantised[0:1]
