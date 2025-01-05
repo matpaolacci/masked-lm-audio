@@ -111,6 +111,8 @@ class FilesAudioDataset(Dataset):
         return self.get_song_chunk(index, offset, test)
     
     def get_song_chunk_with_index(self, item) -> dict:
+        '''TODO: This function doesn't work when num_workers is greather than 1.
+        '''
         read_data = self.curr_offset_song + self.sample_length
         filename, song_duration = self.files[self.curr_index_song], self.durations[self.curr_index_song]
         out_of_bounds = read_data - song_duration
