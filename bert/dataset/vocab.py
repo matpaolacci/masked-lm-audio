@@ -38,7 +38,7 @@ class TorchVocab(object):
         counter = counter.copy()
         min_freq = max(min_freq, 1)
 
-        # itos is a list of tokens (i.e. normal words along with special tokens)
+        # itos is a list of tokens (i.e. normal words along with special tokens), that will be sorted by frquency
         self.itos = list(specials)
         
         # frequencies of special tokens are not counted when building vocabulary
