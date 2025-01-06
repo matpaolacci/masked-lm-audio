@@ -61,8 +61,8 @@ class BERTDataset(Dataset):
         return {key: torch.tensor(value) for key, value in output.items()}
 
     def random_word(self, sentence):
-        tokens = sentence.split()
-        output_label = []
+        tokens = sentence.split() # list of words, e.g., ["I", "am", "a", "computer", "scientist"] 
+        output_label = [] # it will filled with the true label
 
         for i, token in enumerate(tokens):
             prob = random.random()
@@ -80,14 +80,18 @@ class BERTDataset(Dataset):
 
                 # 10% randomly change token to current token
                 else:
+                    # stoi works like this: given a word, it returns its index as found in itos
                     tokens[i] = self.vocab.stoi.get(token, self.vocab.unk_index)
 
                 output_label.append(self.vocab.stoi.get(token, self.vocab.unk_index))
 
+            # Leave 85% of the tokens as they are, they will not concur in the loss calculation
             else:
                 tokens[i] = self.vocab.stoi.get(token, self.vocab.unk_index)
+                # Indexes 0 will be ignored when we will calculate the loss
                 output_label.append(0)
 
+        # tokens will be like ["I", "am", "a", "computer", "scientist"] 
         return tokens, output_label
 
     def random_sent(self, index):

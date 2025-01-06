@@ -38,7 +38,9 @@ class TorchVocab(object):
         counter = counter.copy()
         min_freq = max(min_freq, 1)
 
+        # itos is a list of tokens (i.e. normal words along with special tokens)
         self.itos = list(specials)
+        
         # frequencies of special tokens are not counted when building vocabulary
         # in frequency order
         for tok in specials:
@@ -55,7 +57,7 @@ class TorchVocab(object):
                 break
             self.itos.append(word)
 
-        # stoi is simply a reverse dict for itos
+        # stoi is simply a reverse dict for itos like {token: index}
         self.stoi = {tok: i for i, tok in enumerate(self.itos)}
 
         self.vectors = None
