@@ -67,6 +67,7 @@ class BERTDataset(Dataset):
         for i, token in enumerate(tokens):
             prob = random.random()
             if prob < 0.15:
+                # The probability is rescaled by dividing it by 0.15 (bringing it back to a range between 0 and 1)
                 prob /= 0.15
 
                 # 80% randomly change token to mask token
