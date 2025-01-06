@@ -91,7 +91,7 @@ class BERTDataset(Dataset):
                 # Indexes 0 will be ignored when we will calculate the loss
                 output_label.append(0)
 
-        # tokens will be like ["I", "am", "a", "computer", "scientist"] 
+        # tokens will be like [12,34,1, 3, 1 , ...]
         return tokens, output_label
 
     def random_sent(self, index):
