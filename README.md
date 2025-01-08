@@ -4,4 +4,4 @@ I used just the BERT model starting from the code provided in the official repo 
 $$\langle SOS\rangle, e_1, e_2,…, e_i ,\langle mask_1\rangle, \langle mask_2\rangle, …, \langle mask_k\rangle,e_{N-i-k}, …, e_N, \langle EOS \rangle $$
 
 - **Stem separation**: In this case, we want to separate a stem instrument, e.g., a guitar, whose embeddings we denote with $e^G$, from the mixture, whose embeddings are denoted by $e^M$. So we feed the model a sequence like this:
-$$e^M_1,…, e^M_{N_M},T_{sep},e^G_{1}, e^G_2, …, e^G_{N_G}$$
+$$e^M_1,…, e^M_{N_M},\langle SEP \rangle,e^G_{1}, e^G_2, …, e^G_{N_G}$$
