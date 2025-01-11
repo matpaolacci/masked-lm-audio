@@ -28,7 +28,7 @@ class BERTDataset(Dataset):
         self.batches: t.Tensor = file_embedding_sequence.view(file_embedding_sequence.shape[0]//self.seq_len, self.seq_len).tolist()
 
     def __len__(self):
-        return self.batches.shape[0]
+        return len(self.batches)
 
     def __getitem__(self, item):
         input_sequence = self.batches[item]
