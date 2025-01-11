@@ -91,8 +91,6 @@ class BERTTrainer:
                               bar_format="{l_bar}{r_bar}")
 
         avg_loss = 0.0
-        total_correct = 0
-        total_element = 0
 
         for i, data in data_iter:
             # 0. batch_data will be sent into the device(GPU or cpu)
@@ -125,8 +123,7 @@ class BERTTrainer:
             if i % self.log_freq == 0:
                 data_iter.write(str(post_fix))
 
-        print("EP%d_%s, avg_loss=" % (epoch, str_code), avg_loss / len(data_iter), "total_acc=",
-              total_correct * 100.0 / total_element)
+        print("EP%d_%s, avg_loss=" % (epoch, str_code), avg_loss / len(data_iter))
 
     def save(self, epoch, file_path="output/bert_trained.model"):
         """
