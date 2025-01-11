@@ -1,7 +1,7 @@
 from torch.utils.data import Dataset
 import random, os
 import torch as t
-from vocab import WordVocab
+from .vocab import WordVocab
 
 class BERTDataset(Dataset):
     def __init__(self, path_to_data, vocab, seq_len):
