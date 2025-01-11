@@ -10,8 +10,8 @@ from .dataset import BERTDataset, WordVocab
 def train():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-c", "--train_dataset", required=True, type=str, help="train dataset for train bert")
-    parser.add_argument("-t", "--test_dataset", type=str, default=None, help="test set for evaluate train set")
+    parser.add_argument("-c", "--path_to_train_dataset", required=True, type=str, help="train dataset for train bert")
+    parser.add_argument("-t", "--path_to_test_dataset", type=str, default=None, help="test set for evaluate train set")
     parser.add_argument("-v", "--vocab_path", required=True, type=str, help="built vocab model path with bert-vocab")
     parser.add_argument("-o", "--output_path", required=True, type=str, help="ex)output/bert.model")
 
@@ -41,17 +41,17 @@ def train():
     vocab = WordVocab.load_vocab(args.vocab_path)
     print("Vocab Size: ", len(vocab))
 
-    print("Loading Train Dataset", args.train_dataset)
-    train_dataset = BERTDataset(args.train_dataset, vocab, seq_len=args.seq_len)
+    print("Loading Train Dataset", args.path_to_train_dataset)
+    path_to_train_dataset = BERTDataset(args.path_to_train_dataset, vocab, seq_len=args.seq_len)
 
-    print("Loading Test Dataset", args.test_dataset)
-    test_dataset = BERTDataset(args.test_dataset, vocab, seq_len=args.seq_len) \
-        if args.test_dataset is not None else None
+    print("Loading Test Dataset", args.path_to_test_dataset)
+    path_to_test_dataset = BERTDataset(args.path_to_test_dataset, vocab, seq_len=args.seq_len) \
+        if args.path_to_test_dataset is not None else None
 
     print("Creating Dataloader")
-    train_data_loader = DataLoader(train_dataset, batch_size=args.batch_size, num_workers=args.num_workers)
-    test_data_loader = DataLoader(test_dataset, batch_size=args.batch_size, num_workers=args.num_workers) \
-        if test_dataset is not None else None
+    train_data_loader = DataLoader(path_to_train_dataset, batch_size=args.batch_size, num_workers=args.num_workers)
+    test_data_loader = DataLoader(path_to_test_dataset, batch_size=args.batch_size, num_workers=args.num_workers) \
+        if path_to_test_dataset is not None else None
 
     print("Building BERT model")
     bert = BERT(len(vocab), hidden=args.hidden, n_layers=args.layers, attn_heads=args.attn_heads)
