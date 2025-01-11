@@ -1,6 +1,7 @@
 import pickle
 import tqdm
 from collections import Counter
+import torch as t
 
 
 class TorchVocab(object):
@@ -13,7 +14,7 @@ class TorchVocab(object):
         itos: A list of token strings indexed by their numerical identifiers.
     """
 
-    def __init__(self, counter, max_size=None, min_freq=1, specials=['<pad>', '<oov>'],
+    def __init__(self, counter, max_size=None, min_freq=1, specials=None,
                  vectors=None, unk_init=None, vectors_cache=None):
         """Create a Vocab object from a collections.Counter.
         Arguments:
@@ -38,7 +39,7 @@ class TorchVocab(object):
         counter = counter.copy()
         min_freq = max(min_freq, 1)
 
-        # itos is a list of tokens (i.e. normal words along with special tokens), that will be sorted by frquency
+        # itos is a list of tokens (i.e. normal words along with special tokens), that will be sorted by frequency
         self.itos = list(specials)
         
         # frequencies of special tokens are not counted when building vocabulary
@@ -57,7 +58,7 @@ class TorchVocab(object):
                 break
             self.itos.append(word)
 
-        # stoi is simply a reverse dict for itos like {token: index}
+        # stoi is simply a reverse dict for itos like {token: index of the token in itos}
         self.stoi = {tok: i for i, tok in enumerate(self.itos)}
 
         self.vectors = None
@@ -93,19 +94,23 @@ class TorchVocab(object):
 
 class Vocab(TorchVocab):
     def __init__(self, counter, max_size=None, min_freq=1):
-        self.pad_index = 0
+        self.pad_index = 0 # This will be ignored from the model
         self.unk_index = 1
         self.eos_index = 2
         self.sos_index = 3
         self.mask_index = 4
-        super().__init__(counter, specials=["<pad>", "<unk>", "<eos>", "<sos>", "<mask>"],
+        super().__init__(counter, specials=Vocab.get_special_tokens(),
                          max_size=max_size, min_freq=min_freq)
 
-    def to_seq(self, sentece, seq_len, with_eos=False, with_sos=False) -> list:
+    def to_seq(self, sentence, seq_len, with_eos=False, with_sos=False) -> list:
         pass
 
     def from_seq(self, seq, join=False, with_pad=False):
         pass
+    
+    @staticmethod
+    def get_special_tokens():
+        return [0, 1, 2, 3, 4] #["<pad>", "<unk>", "<eos>", "<sos>", "<mask>"] 
 
     @staticmethod
     def load_vocab(vocab_path: str) -> 'Vocab':
@@ -119,17 +124,10 @@ class Vocab(TorchVocab):
 
 # Building Vocab with text files
 class WordVocab(Vocab):
-    def __init__(self, texts, max_size=None, min_freq=1):
+    '''Vocabulary of embedding audio codes, that is the codes extracted from some encoded songs by the VQ-VAE'''
+    def __init__(self, audio_corpus, max_size=None, min_freq=1):
         print("Building Vocab")
-        counter = Counter()
-        for line in tqdm.tqdm(texts):
-            if isinstance(line, list):
-                words = line
-            else:
-                words = line.replace("\n", "").replace("\t", "").split()
-
-            for word in words:
-                counter[word] += 1
+        counter = Counter(audio_corpus)
         super().__init__(counter, max_size=max_size, min_freq=min_freq)
 
     def to_seq(self, sentence, seq_len=None, with_eos=False, with_sos=False, with_len=False):
@@ -176,12 +174,18 @@ def build():
     parser.add_argument("-c", "--corpus_path", required=True, type=str)
     parser.add_argument("-o", "--output_path", required=True, type=str)
     parser.add_argument("-s", "--vocab_size", type=int, default=None)
-    parser.add_argument("-e", "--encoding", type=str, default="utf-8")
     parser.add_argument("-m", "--min_freq", type=int, default=1)
     args = parser.parse_args()
-
-    with open(args.corpus_path, "r", encoding=args.encoding) as f:
-        vocab = WordVocab(f, max_size=args.vocab_size, min_freq=args.min_freq)
+    
+    audio_corpus = t.load(args.corpus_path).tolist()
+    
+    # We shift every index in the audio_corpus of #num_special_tokens positions
+    audio_corpus = [x + len(Vocab.get_special_tokens()) for x in audio_corpus]
+    
+    vocab = WordVocab(audio_corpus, max_size=args.vocab_size, min_freq=args.min_freq)
 
     print("VOCAB SIZE:", len(vocab))
     vocab.save_vocab(args.output_path)
+
+if __name__ == '__main__':
+    build()
