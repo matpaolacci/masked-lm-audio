@@ -1,5 +1,5 @@
 from torch.utils.data import Dataset
-import tqdm, random, os
+import random, os
 import torch as t
 from vocab import WordVocab
 
