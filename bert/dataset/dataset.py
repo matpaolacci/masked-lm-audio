@@ -12,6 +12,7 @@ class BERTDataset(Dataset):
         self.seq_len = seq_len
         self._load_filenames(path_to_data)
         self._load_sequence()
+        print(f"Dataset created with {self.__len__()} elements")
         
     def _load_filenames(self, path_to_data):
         self.filenames = []
