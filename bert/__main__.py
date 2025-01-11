@@ -69,3 +69,6 @@ def train():
 
         if test_data_loader is not None:
             trainer.test(epoch)
+
+if __name__ == '__main__':
+    train()
