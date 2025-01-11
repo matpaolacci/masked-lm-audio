@@ -35,7 +35,7 @@ class BERTDataset(Dataset):
     def __getitem__(self, item):
         input_sequence = self.batches[item]
         
-        t1_random, t1_label = self.random_embedding(input_sequence)
+        t1_random, t1_label = input_sequence, self.random_embedding(input_sequence)
 
         # [CLS] tag = SOS tag, [SEP] tag = EOS tag
         t1 = [self.vocab.sos_index] + t1_random + [self.vocab.eos_index]
