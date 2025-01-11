@@ -120,7 +120,7 @@ class BERTTrainer:
                 "loss": loss.item()
             }
 
-            if i % self.log_freq == 0:
+            if self.log_freq and i % self.log_freq == 0:
                 data_iter.write(str(post_fix))
 
         print("EP%d_%s, avg_loss=" % (epoch, str_code), avg_loss / len(data_iter))
