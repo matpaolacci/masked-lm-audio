@@ -42,11 +42,10 @@ def train():
     print("Vocab Size: ", len(vocab))
 
     print("Loading Train Dataset", args.train_dataset)
-    train_dataset = BERTDataset(args.train_dataset, vocab, seq_len=args.seq_len,
-                                corpus_lines=args.corpus_lines, on_memory=args.on_memory)
+    train_dataset = BERTDataset(args.train_dataset, vocab, seq_len=args.seq_len)
 
     print("Loading Test Dataset", args.test_dataset)
-    test_dataset = BERTDataset(args.test_dataset, vocab, seq_len=args.seq_len, on_memory=args.on_memory) \
+    test_dataset = BERTDataset(args.test_dataset, vocab, seq_len=args.seq_len) \
         if args.test_dataset is not None else None
 
     print("Creating Dataloader")
