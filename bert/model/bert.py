@@ -33,7 +33,7 @@ class BERT(nn.Module):
         self.transformer_blocks = nn.ModuleList(
             [TransformerBlock(hidden, attn_heads, hidden * 4, dropout) for _ in range(n_layers)])
 
-    def forward(self, x, segment_info):
+    def forward(self, x):
         """
         :param x: indexes of tokens
         """
@@ -42,7 +42,7 @@ class BERT(nn.Module):
         mask = (x > 0).unsqueeze(1).repeat(1, x.size(1), 1).unsqueeze(1)
 
         # embedding the indexed sequence to sequence of vectors
-        x = self.embedding(x, segment_info)
+        x = self.embedding(x)
 
         # running over multiple transformer blocks
         for transformer in self.transformer_blocks:
