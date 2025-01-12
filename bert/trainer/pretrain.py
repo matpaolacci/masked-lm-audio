@@ -147,7 +147,7 @@ class BERTTrainer:
         if self.best_model_saved:
             os.remove(self.best_model_saved)
             
-        output_path = self.checkpoint_path + f"/bert_L{avg_loss:.4f}_.ep{epoch}"
+        output_path = self.checkpoint_path + f"/bert_L{avg_loss:.7f}_.ep{epoch}"
         torch.save(self.model, output_path)
         self.best_model_saved = output_path
         self.bert.to(self.device)
