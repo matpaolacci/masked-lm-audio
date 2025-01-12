@@ -23,7 +23,7 @@ class BERTDataset(Dataset):
                 
     def _load_sequence(self):
         '''TODO: it takes only the first file'''
-        file_embedding_sequence: t.Tensor = t.load(self.filenames[0], map_location=t.device("cpu"))
+        file_embedding_sequence: t.Tensor = t.load(self.filenames[0])
         embds_to_remove = file_embedding_sequence.shape[0] % self.seq_len
         file_embedding_sequence = file_embedding_sequence[:file_embedding_sequence.shape[0]-embds_to_remove]
         self.batches: t.Tensor = file_embedding_sequence.view(file_embedding_sequence.shape[0]//self.seq_len, self.seq_len).tolist()
