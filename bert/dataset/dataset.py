@@ -9,7 +9,7 @@ class BERTDataset(Dataset):
             :param seq_len: model input sequence
         '''
         self.vocab: WordVocab = vocab
-        self.seq_len = seq_len
+        self.seq_len = seq_len - 2 # since we are adding SOS and EOS tokens to the input sequence
         self._load_filenames(path_to_data)
         self._load_sequence()
         print(f"Dataset created with {self.__len__()} elements")
