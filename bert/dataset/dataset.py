@@ -27,7 +27,7 @@ class BERTDataset(Dataset):
         embds_to_remove = file_embedding_sequence.shape[0] % self.seq_len
         file_embedding_sequence = file_embedding_sequence[:file_embedding_sequence.shape[0]-embds_to_remove]
         sequences: t.Tensor = file_embedding_sequence.view(file_embedding_sequence.shape[0]//self.seq_len, self.seq_len)
-        self.sequences = sequences[:max(sequences.shape[0], max_dataset_elements), :] if max_dataset_elements else sequences
+        self.sequences = sequences[:min(sequences.shape[0], max_dataset_elements), :] if max_dataset_elements else sequences
 
     def __len__(self):
         return len(self.sequences)
