@@ -7,7 +7,7 @@ from ..model import BERTLM, BERT
 from .optim_schedule import ScheduledOptim
 
 import tqdm
-import numpy as np
+import os
 
 class BERTTrainer:
     """
@@ -60,11 +60,12 @@ class BERTTrainer:
 
         # Using Negative Log Likelihood Loss function for predicting the masked_token
         self.criterion = nn.NLLLoss(ignore_index=0)
-        self.best_avg_loss = 1_000_000
         self.log_freq = log_freq
 
         # Set the path where the checkpoint model will be saved
         self.checkpoint_path = checkpoint_path
+        self.best_avg_loss = 1_000_000
+        self.best_model_saved = None
 
         print("Total Parameters:", sum([p.nelement() for p in self.model.parameters()]))
 
@@ -142,8 +143,13 @@ class BERTTrainer:
         :param file_path: model output path which gonna be file_path+"ep%d" % epoch
         :return: final_output_path
         """
+        
+        if self.best_model_saved:
+            os.remove(self.best_model_saved)
+            
         output_path = self.checkpoint_path + f"/bert_L{avg_loss:.4f}_.ep{epoch}"
         torch.save(self.model, output_path)
+        self.best_model_saved = output_path
         self.bert.to(self.device)
         print("EP:%d Model Saved on:" % epoch, output_path)
         return output_path
