@@ -1,4 +1,5 @@
 import argparse
+from argparse import Namespace
 
 from torch.utils.data import DataLoader
 
@@ -6,10 +7,13 @@ from .model import BERT
 from .trainer import BERTTrainer
 from .dataset import BERTDataset, WordVocab
 
-
-def train():
+def main():
     parser = argparse.ArgumentParser()
-
+    
+    parser.add_argument("-m", "--mode", required=True, type=str, help="set if you want train the model or do the inference")
+    parser.add_argument("--path_to_saved_model", type=str, help="if you want make inference specify the saved model path")
+    parser.add_argument("--output_dir", type=str, help="declare where you want save the output of the model")
+    
     parser.add_argument("-c", "--path_to_train_dataset", required=True, type=str, help="train dataset for train bert")
     parser.add_argument("-t", "--path_to_test_dataset", type=str, default=None, help="test set for evaluate train set")
     parser.add_argument("-v", "--vocab_path", required=True, type=str, help="built vocab model path with bert-vocab")
@@ -36,6 +40,16 @@ def train():
     parser.add_argument("--adam_beta2", type=float, default=0.999, help="adam first beta value")
 
     args = parser.parse_args()
+    
+    if args.mode == "inference":
+        inference(args)
+    elif args.mode == "train":
+        train(args)
+    else:
+        raise RuntimeError("--mode argument must be either 'infernce' or 'train'")
+
+
+def train(args: Namespace):
 
     print("Loading Vocab", args.vocab_path)
     vocab = WordVocab.load_vocab(args.vocab_path)
@@ -67,6 +81,9 @@ def train():
 
         if test_data_loader is not None:
             trainer.test(epoch)
+            
+def inference():
+    pass
 
 if __name__ == '__main__':
-    train()
+    main()
