@@ -24,6 +24,7 @@ def main():
     parser.add_argument("-a", "--attn_heads", type=int, default=8, help="number of attention heads")
     parser.add_argument("-s", "--seq_len", type=int, default=20, help="maximum sequence len")
 
+    parser.add_argument("--max_dataset_elements", type=int, default=None, help="maximum elements in the datasets")
     parser.add_argument("-b", "--batch_size", type=int, default=64, help="number of batch_size")
     parser.add_argument("-e", "--epochs", type=int, default=10, help="number of epochs")
     parser.add_argument("-w", "--num_workers", type=int, default=5, help="dataloader worker size")
@@ -56,10 +57,10 @@ def train(args: Namespace):
     print("Vocab Size: ", len(vocab))
 
     print("Loading Train Dataset", args.path_to_train_dataset)
-    path_to_train_dataset = BERTDataset(args.path_to_train_dataset, vocab, seq_len=args.seq_len)
+    path_to_train_dataset = BERTDataset(args.path_to_train_dataset, vocab, seq_len=args.seq_len, max_dataset_elements=args.max_dataset_elements)
 
     print("Loading Test Dataset", args.path_to_test_dataset)
-    path_to_test_dataset = BERTDataset(args.path_to_test_dataset, vocab, seq_len=args.seq_len) \
+    path_to_test_dataset = BERTDataset(args.path_to_test_dataset, vocab, seq_len=args.seq_len, max_dataset_elements=args.max_dataset_elements) \
         if args.path_to_test_dataset is not None else None
 
     print("Creating Dataloader")

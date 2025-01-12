@@ -4,14 +4,14 @@ import torch as t
 from .vocab import WordVocab
 
 class BERTDataset(Dataset):
-    def __init__(self, path_to_data, vocab, seq_len):
+    def __init__(self, path_to_data, vocab, seq_len, max_dataset_elements=None):
         '''
             :param seq_len: model input sequence
         '''
         self.vocab: WordVocab = vocab
         self.seq_len = seq_len - 2 # since we are adding SOS and EOS tokens to the input sequence
         self._load_filenames(path_to_data)
-        self._load_sequence()
+        self._load_sequence(max_dataset_elements)
         print(f"Dataset created with {self.__len__()} elements")
         
     def _load_filenames(self, path_to_data):
@@ -21,18 +21,19 @@ class BERTDataset(Dataset):
             if os.path.isfile(file_path):
                 self.filenames.append(file_path)
                 
-    def _load_sequence(self):
+    def _load_sequence(self, max_dataset_elements: int):
         '''TODO: it takes only the first file'''
         file_embedding_sequence: t.Tensor = t.load(self.filenames[0])
         embds_to_remove = file_embedding_sequence.shape[0] % self.seq_len
         file_embedding_sequence = file_embedding_sequence[:file_embedding_sequence.shape[0]-embds_to_remove]
-        self.batches: t.Tensor = file_embedding_sequence.view(file_embedding_sequence.shape[0]//self.seq_len, self.seq_len).tolist()
+        sequences: t.Tensor = file_embedding_sequence.view(file_embedding_sequence.shape[0]//self.seq_len, self.seq_len)
+        self.sequences = sequences[:max(sequences.shape[0], max_dataset_elements), :] if max_dataset_elements else sequences
 
     def __len__(self):
-        return len(self.batches)
+        return len(self.sequences)
 
     def __getitem__(self, item):
-        input_sequence = self.batches[item]
+        input_sequence = self.sequences[item]
         
         t1_random, t1_label = input_sequence, self.random_embedding(input_sequence)
 
