@@ -20,7 +20,7 @@ def main():
     parser.add_argument("-o", "--output_path", required=True, type=str, help="ex)output/bert.model")
 
     parser.add_argument("-hs", "--hidden", type=int, default=256, help="hidden size of transformer model")
-    parser.add_argument("-l", "--layers", type=int, default=8, help="number of layers")
+    parser.add_argument("-l", "--layers", type=int, default=4, help="number of layers")
     parser.add_argument("-a", "--attn_heads", type=int, default=8, help="number of attention heads")
     parser.add_argument("-s", "--seq_len", type=int, default=20, help="maximum sequence len")
 
