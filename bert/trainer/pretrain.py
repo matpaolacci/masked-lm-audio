@@ -7,7 +7,7 @@ from ..model import BERTLM, BERT
 from .optim_schedule import ScheduledOptim
 
 import tqdm
-
+import numpy as np
 
 class BERTTrainer:
     """
@@ -21,7 +21,7 @@ class BERTTrainer:
     """
 
     def __init__(self, bert: BERT, vocab_size: int,
-                 train_dataloader: DataLoader, test_dataloader: DataLoader = None,
+                 train_dataloader: DataLoader, checkpoint_path: str, test_dataloader: DataLoader = None,
                  lr: float = 1e-4, betas=(0.9, 0.999), weight_decay: float = 0.01, warmup_steps=10000,
                  with_cuda: bool = True, cuda_devices=None, log_freq: int = None):
         """
@@ -60,8 +60,11 @@ class BERTTrainer:
 
         # Using Negative Log Likelihood Loss function for predicting the masked_token
         self.criterion = nn.NLLLoss(ignore_index=0)
-
+        self.best_avg_loss = 1_000_000
         self.log_freq = log_freq
+
+        # Set the path where the checkpoint model will be saved
+        self.checkpoint_path = checkpoint_path
 
         print("Total Parameters:", sum([p.nelement() for p in self.model.parameters()]))
 
@@ -122,10 +125,16 @@ class BERTTrainer:
 
             if self.log_freq and i % self.log_freq == 0:
                 data_iter.write(str(post_fix))
+        
+        # Early stopping
+        avg_loss = avg_loss / len(data_iter)
+        if self.best_avg_loss > avg_loss:
+            self.best_avg_loss = avg_loss
+            self._save(epoch, avg_loss)
+        
+        print("EP%d_%s, avg_loss=" % (epoch, str_code), avg_loss)
 
-        print("EP%d_%s, avg_loss=" % (epoch, str_code), avg_loss / len(data_iter))
-
-    def save(self, epoch, file_path="output/bert_trained.model"):
+    def _save(self, epoch, avg_loss):
         """
         Saving the current BERT model on file_path
 
@@ -133,7 +142,7 @@ class BERTTrainer:
         :param file_path: model output path which gonna be file_path+"ep%d" % epoch
         :return: final_output_path
         """
-        output_path = file_path + ".ep%d" % epoch
+        output_path = self.checkpoint_path + f"/bert_L{avg_loss:.4f}_.ep{epoch}"
         torch.save(self.bert.cpu(), output_path)
         self.bert.to(self.device)
         print("EP:%d Model Saved on:" % epoch, output_path)

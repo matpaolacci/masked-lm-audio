@@ -57,14 +57,13 @@ def train():
     bert = BERT(len(vocab), args.seq_len, hidden=args.hidden, n_layers=args.layers, attn_heads=args.attn_heads)
 
     print("Creating BERT Trainer")
-    trainer = BERTTrainer(bert, len(vocab), train_dataloader=train_data_loader, test_dataloader=test_data_loader,
+    trainer = BERTTrainer(bert, len(vocab), train_dataloader=train_data_loader, checkpoint_path=args.output_path, test_dataloader=test_data_loader,
                           lr=args.lr, betas=(args.adam_beta1, args.adam_beta2), weight_decay=args.adam_weight_decay,
                           with_cuda=args.with_cuda, cuda_devices=args.cuda_devices, log_freq=args.log_freq)
 
     print("Training Start")
     for epoch in range(args.epochs):
         trainer.train(epoch)
-        trainer.save(epoch, args.output_path)
 
         if test_data_loader is not None:
             trainer.test(epoch)
