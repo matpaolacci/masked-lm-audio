@@ -101,6 +101,7 @@ class BERTTrainer:
             data = {key: value.to(self.device) for key, value in data.items()}
 
             # 1. forward the next_sentence_prediction and masked_lm model
+            print(data["bert_input"].shape)
             mask_lm_output = self.model.forward(data["bert_input"])
 
             # 2-2. NLLLoss of predicting masked token word
