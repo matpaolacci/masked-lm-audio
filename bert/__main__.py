@@ -27,7 +27,7 @@ def main():
     parser.add_argument("--schedule_optim_warmup_steps", type=int, default=10000, help="Controls gradual learning rate increase at the start")
     parser.add_argument("--random_seed", type=int, default=42, help="random seed")
     parser.add_argument("-v", "--vocab_path", required=True, type=str, help="built vocab model path with bert-vocab")
-    parser.add_argument("-o", "--output_path", required=True, type=str, help="ex)output/bert.model")
+    parser.add_argument("-o", "--output_path", type=str, help="ex)output/bert.model")
 
     parser.add_argument("-hs", "--hidden", type=int, default=256, help="hidden size of transformer model")
     parser.add_argument("-l", "--layers", type=int, default=8, help="number of layers")
