@@ -4,10 +4,11 @@ import torch as t
 from .vocab import WordVocab
 
 class BERTDataset(Dataset):
-    def __init__(self, path_to_data, vocab, seq_len, max_dataset_elements=None):
+    def __init__(self, path_to_data, vocab, seq_len, seed, max_dataset_elements=None):
         '''
             :param seq_len: model input sequence
         '''
+        random.seed(seed)
         self.vocab: WordVocab = vocab
         self.seq_len = seq_len - 2 # since we are adding SOS and EOS tokens to the input sequence
         self._load_filenames(path_to_data)

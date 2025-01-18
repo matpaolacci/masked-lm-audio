@@ -16,6 +16,7 @@ def main():
     
     parser.add_argument("-c", "--path_to_train_dataset", required=True, type=str, help="train dataset for train bert")
     parser.add_argument("-t", "--path_to_test_dataset", type=str, default=None, help="test set for evaluate train set")
+    parser.add_argument("--random_seed", type=int, default=42, help="random seed")
     parser.add_argument("-v", "--vocab_path", required=True, type=str, help="built vocab model path with bert-vocab")
     parser.add_argument("-o", "--output_path", required=True, type=str, help="ex)output/bert.model")
 
@@ -57,10 +58,10 @@ def train(args: Namespace):
     print("Vocab Size: ", len(vocab))
 
     print("Loading Train Dataset", args.path_to_train_dataset)
-    path_to_train_dataset = BERTDataset(args.path_to_train_dataset, vocab, seq_len=args.seq_len, max_dataset_elements=args.max_dataset_elements)
+    path_to_train_dataset = BERTDataset(args.path_to_train_dataset, vocab, seq_len=args.seq_len, seed=args.random_seed, max_dataset_elements=args.max_dataset_elements)
 
     print("Loading Test Dataset", args.path_to_test_dataset)
-    path_to_test_dataset = BERTDataset(args.path_to_test_dataset, vocab, seq_len=args.seq_len, max_dataset_elements=args.max_dataset_elements) \
+    path_to_test_dataset = BERTDataset(args.path_to_test_dataset, vocab, seq_len=args.seq_len, seed=args.random_seed, max_dataset_elements=args.max_dataset_elements) \
         if args.path_to_test_dataset is not None else None
 
     print("Creating Dataloader")
