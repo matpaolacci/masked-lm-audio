@@ -4,7 +4,7 @@ import torch as t
 from .vocab import WordVocab
 
 class BERTDataset(Dataset):
-    def __init__(self, path_to_data, vocab, seq_len, seed, elements_to_mask=32, evaluation=False, max_dataset_elements=None):
+    def __init__(self, path_to_data, vocab, seq_len, elements_to_mask=32, seed=None, evaluation=False, max_dataset_elements=None):
         '''
             :param seq_len: model input sequence
         '''
@@ -28,7 +28,7 @@ class BERTDataset(Dataset):
                 self.filenames.append(file_path)
                 
     def _load_sequence(self, max_dataset_elements: int):
-        '''TODO: it takes only the first file'''
+        '''TODO: it takes only the first file. Furthermore it would be better add padding to last insted of cut out elements'''
         file_embedding_sequence: t.Tensor = t.load(self.filenames[0])
         file_embedding_sequence = file_embedding_sequence + len(self.vocab.get_special_tokens())
         embds_to_remove = file_embedding_sequence.shape[0] % self.seq_len
