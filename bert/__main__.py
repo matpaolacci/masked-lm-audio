@@ -12,13 +12,13 @@ def main():
     parser = argparse.ArgumentParser()
     
     parser.add_argument("-m", "--mode", required=True, type=str, help="set if you want train the model or do the inference")
-    parser.add_argument("--path_to_saved_model", type=str, help="if you want make inference specify the saved model path")
     parser.add_argument("--output_dir", type=str, help="declare where you want save the output of the model")
     
     parser.add_argument("-c", "--path_to_train_dataset", type=str, help="train dataset for train bert")
     parser.add_argument("-t", "--path_to_test_dataset", type=str, default=None, help="test set for evaluate train set")
     
     # evaluation
+    parser.add_argument("--path_to_saved_model", type=str, help="if you want make inference specify the saved model path")
     parser.add_argument("--path_to_eval_dataset", type=str, default=None, required=False, help="eval dataset for eval bert")
     parser.add_argument("--path_to_save_output", type=str, default=None, required=False, help="path to save the output of bert")
     parser.add_argument("--elements_to_mask", type=int, default=None, required=False, help="number of elements to mask in the evaluating sequence")
@@ -119,7 +119,7 @@ def inference(args: argparse.Namespace):
         bert,
         vocab,
         seq_len=args.seq_len,
-        checkpoint_model_path=args.path_to_model_checkpoint,
+        checkpoint_model_path=args.path_to_saved_model,
         path_to_save_output=args.path_to_save_output
     )
     
