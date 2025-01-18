@@ -59,10 +59,10 @@ class BERTEvaluator:
         
         # Take the token indices predicted by the model
         entire_sequence = entire_sequence.max(1).indices
-        mask_special_token = t.isin(entire_sequence, t.tensor(self.vocab.get_special_tokens()))
         
-        # Take the tokens (vq-vae indices)
+        # Take the tokens (along with specials)
         entire_sequence = t.tensor([self.vocab.itos[idx] for idx in entire_sequence])
+        mask_special_token = t.isin(entire_sequence, t.tensor(self.vocab.get_special_tokens()))
         
         # Remove special tokens and decrement all indices to bring them back to VQ-VAE token indices
         entire_sequence = entire_sequence[~mask_special_token] - len(self.vocab.get_special_tokens())
