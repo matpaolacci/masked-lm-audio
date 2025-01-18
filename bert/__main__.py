@@ -112,11 +112,7 @@ def inference(args: argparse.Namespace):
     
     eval_dataloader = DataLoader(eval_dataset, batch_size=args.batch_size, shuffle=False, num_workers=1)
     
-    print("Building BERT model")
-    bert = BERT(len(vocab), args.seq_len, hidden=args.hidden, n_layers=args.layers, attn_heads=args.attn_heads)
-    
     bertEvaluator = BERTEvaluator(
-        bert,
         vocab,
         seq_len=args.seq_len,
         checkpoint_model_path=args.path_to_saved_model,
