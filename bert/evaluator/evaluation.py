@@ -1,5 +1,6 @@
 from torch.utils.data import DataLoader
 import torch as t, tqdm
+import torch.nn as nn
 from ..model.language_model import BERTLM, BERT
 from ..dataset import WordVocab
 
@@ -18,6 +19,7 @@ class BERTEvaluator:
         
         self.path_to_save_output = path_to_save_output
         self.vocab = vocab
+        self.criterion = nn.NLLLoss(ignore_index=0)
         
         self.model.eval()
         
