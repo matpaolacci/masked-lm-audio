@@ -1,8 +1,7 @@
-from bert.model.bert import BERT
 from torch.utils.data import DataLoader
 import torch as t, tqdm
-from bert.model.language_model import BERTLM
-from dataset import WordVocab
+from ..model.language_model import BERTLM, BERT
+from ..dataset import WordVocab
 
 class BERTEvaluator:
     
