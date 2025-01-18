@@ -4,11 +4,16 @@ import torch as t
 from .vocab import WordVocab
 
 class BERTDataset(Dataset):
-    def __init__(self, path_to_data, vocab, seq_len, seed, max_dataset_elements=None):
+    def __init__(self, path_to_data, vocab, seq_len, seed, elements_to_mask=32, evaluation=False, max_dataset_elements=None):
         '''
             :param seq_len: model input sequence
         '''
-        random.seed(seed)
+        if not evaluation:
+            random.seed(seed)
+            
+        self.elements_to_mask = elements_to_mask # for generative task
+        self.evaluation = evaluation
+        
         self.vocab: WordVocab = vocab
         self.seq_len = seq_len - 2 # since we are adding SOS and EOS tokens to the input sequence
         self._load_filenames(path_to_data)
@@ -37,15 +42,15 @@ class BERTDataset(Dataset):
 
     def __getitem__(self, item):
         input_sequence = self.sequences[item]
-        t1_random, t1_label = input_sequence, self.random_embedding(input_sequence)
+        
+        if self.evaluation:
+            masked_sequence, label = self.get_masked_sequence_in_the_middle(input_sequence)
+        else:
+            masked_sequence, label = self.random_embedding(input_sequence)
 
         # [CLS] tag = SOS tag, [SEP] tag = EOS tag
-        t1 = [self.vocab.sos_index] + t1_random + [self.vocab.eos_index]
-
-        t1_label = [self.vocab.pad_index] + t1_label + [self.vocab.pad_index]
-
-        bert_input = t1
-        bert_label = t1_label
+        bert_input = [self.vocab.sos_index] + masked_sequence + [self.vocab.eos_index]
+        bert_label = [self.vocab.pad_index] + label + [self.vocab.pad_index]
 
         #padding = [self.vocab.pad_index for _ in range(self.seq_len - len(bert_input))]
         #bert_input.extend(padding), bert_label.extend(padding), segment_label.extend(padding)
@@ -54,6 +59,30 @@ class BERTDataset(Dataset):
                   "bert_label": bert_label}
 
         return {key: t.tensor(value) for key, value in output.items()}
+    
+    def get_masked_sequence_in_the_middle(self, sequence):
+        ''' For "generative" task.
+            It returns the indices of each token in the itos. The returned sequence is masked in the middle
+        '''
+        elements_to_mask = self.elements_to_mask
+        assert elements_to_mask % 2 == 0 and len(sequence) % 2 == 0
+        
+        output_labels = []
+        start_masking = (len(sequence) - elements_to_mask) // 2
+        end_masking = start_masking + elements_to_mask
+        
+        for i, token in enumerate(sequence):
+            if i >= start_masking and i<=end_masking:
+                # mask the central tokens
+                sequence[i] = self.vocab.mask_index
+            else:
+                # leave the other tokens unmasked
+                sequence[i] = self.vocab.stoi.get(token, self.vocab.unk_index)
+            
+            output_labels.append(self.vocab.stoi.get(token, self.vocab.unk_index))
+        
+        return sequence, output_labels
+            
 
     def random_embedding(self, sequence):
         '''
@@ -92,4 +121,4 @@ class BERTDataset(Dataset):
                 # Indexes 0 will be ignored when we will calculate the loss
                 output_label.append(0)
 
-        return output_label
+        return sequence, output_label

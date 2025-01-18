@@ -1,11 +1,12 @@
-import argparse
-from argparse import Namespace
+import argparse, json
 
 from torch.utils.data import DataLoader
+import torch as t
 
-from .model import BERT
+from .model import BERT, BERTLM
 from .trainer import BERTTrainer
 from .dataset import BERTDataset, WordVocab
+from .evaluator import BERTEvaluator 
 
 def main():
     parser = argparse.ArgumentParser()
@@ -16,6 +17,14 @@ def main():
     
     parser.add_argument("-c", "--path_to_train_dataset", required=True, type=str, help="train dataset for train bert")
     parser.add_argument("-t", "--path_to_test_dataset", type=str, default=None, help="test set for evaluate train set")
+    
+    # evaluation
+    parser.add_argument("--path_to_eval_dataset", type=str, default=None, required=False, help="eval dataset for eval bert")
+    parser.add_argument("--path_to_save_output", type=str, default=None, required=False, help="path to save the output of bert")
+    parser.add_argument("--elements_to_mask", type=int, default=None, required=False, help="number of elements to mask in the evaluating sequence")
+    
+    # train
+    parser.add_argument("--schedule_optim_warmup_steps", type=int, default=10000, help="Controls gradual learning rate increase at the start")
     parser.add_argument("--random_seed", type=int, default=42, help="random seed")
     parser.add_argument("-v", "--vocab_path", required=True, type=str, help="built vocab model path with bert-vocab")
     parser.add_argument("-o", "--output_path", required=True, type=str, help="ex)output/bert.model")
@@ -51,7 +60,7 @@ def main():
         raise RuntimeError("--mode argument must be either 'infernce' or 'train'")
 
 
-def train(args: Namespace):
+def train(args: argparse.Namespace):
 
     print("Loading Vocab", args.vocab_path)
     vocab = WordVocab.load_vocab(args.vocab_path)
@@ -75,7 +84,7 @@ def train(args: Namespace):
     print("Creating BERT Trainer")
     trainer = BERTTrainer(bert, len(vocab), train_dataloader=train_data_loader, checkpoint_path=args.output_path, test_dataloader=test_data_loader,
                           lr=args.lr, betas=(args.adam_beta1, args.adam_beta2), weight_decay=args.adam_weight_decay,
-                          with_cuda=args.with_cuda, cuda_devices=args.cuda_devices, log_freq=args.log_freq)
+                          with_cuda=args.with_cuda, cuda_devices=args.cuda_devices, log_freq=args.log_freq, warmup_steps=args.schedule_optim_warmup_steps)
 
     print("Training Start")
     for epoch in range(args.epochs):
@@ -84,8 +93,38 @@ def train(args: Namespace):
         if test_data_loader is not None:
             trainer.test(epoch)
             
-def inference():
-    pass
+def inference(args: argparse.Namespace):
+    
+    print("Loading Vocab", args.vocab_path)
+    vocab = WordVocab.load_vocab(args.vocab_path)
+    print("Vocab Size: ", len(vocab))
+    
+    print("Loading Evaluation Dataset", args.path_to_eval_dataset)
+    eval_dataset = BERTDataset(
+        args.path_to_eval_dataset, 
+        vocab, 
+        seq_len=args.seq_len,
+        elements_to_mask=args.elements_to_mask,
+        evaluation=True,
+        seed=args.random_seed, 
+        seq_len=args.seq_len,
+        max_dataset_elements=args.max_dataset_elements
+    )
+    
+    eval_dataloader = DataLoader(eval_dataset, batch_size=args.batch_size, shuffle=False, num_workers=1)
+    
+    print("Building BERT model")
+    bert = BERT(len(vocab), args.seq_len, hidden=args.hidden, n_layers=args.layers, attn_heads=args.attn_heads)
+    
+    bertEvaluator = BERTEvaluator(
+        bert,
+        vocab,
+        seq_len=args.seq_len,
+        checkpoint_model_path=args.path_to_model_checkpoint,
+        path_to_save_output=args.path_to_save_output
+    )
+    
+    bertEvaluator.evaluate(eval_dataloader)
 
 if __name__ == '__main__':
     main()
