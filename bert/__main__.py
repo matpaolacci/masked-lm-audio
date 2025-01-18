@@ -15,7 +15,7 @@ def main():
     parser.add_argument("--path_to_saved_model", type=str, help="if you want make inference specify the saved model path")
     parser.add_argument("--output_dir", type=str, help="declare where you want save the output of the model")
     
-    parser.add_argument("-c", "--path_to_train_dataset", required=True, type=str, help="train dataset for train bert")
+    parser.add_argument("-c", "--path_to_train_dataset", type=str, help="train dataset for train bert")
     parser.add_argument("-t", "--path_to_test_dataset", type=str, default=None, help="test set for evaluate train set")
     
     # evaluation
