@@ -58,16 +58,16 @@ def train(args: Namespace):
     print("Vocab Size: ", len(vocab))
 
     print("Loading Train Dataset", args.path_to_train_dataset)
-    path_to_train_dataset = BERTDataset(args.path_to_train_dataset, vocab, seq_len=args.seq_len, seed=args.random_seed, max_dataset_elements=args.max_dataset_elements)
+    train_dataset = BERTDataset(args.path_to_train_dataset, vocab, seq_len=args.seq_len, seed=args.random_seed, max_dataset_elements=args.max_dataset_elements)
 
     print("Loading Test Dataset", args.path_to_test_dataset)
-    path_to_test_dataset = BERTDataset(args.path_to_test_dataset, vocab, seq_len=args.seq_len, seed=args.random_seed, max_dataset_elements=args.max_dataset_elements) \
+    test_dataset = BERTDataset(args.path_to_test_dataset, vocab, seq_len=args.seq_len, seed=args.random_seed, max_dataset_elements=args.max_dataset_elements) \
         if args.path_to_test_dataset is not None else None
 
     print("Creating Dataloader")
-    train_data_loader = DataLoader(path_to_train_dataset, batch_size=args.batch_size, num_workers=args.num_workers)
-    test_data_loader = DataLoader(path_to_test_dataset, batch_size=args.batch_size, num_workers=args.num_workers) \
-        if path_to_test_dataset is not None else None
+    train_data_loader = DataLoader(train_dataset, batch_size=args.batch_size, num_workers=args.num_workers)
+    test_data_loader = DataLoader(test_dataset, batch_size=args.batch_size, num_workers=args.num_workers) \
+        if test_dataset is not None else None
 
     print("Building BERT model")
     bert = BERT(len(vocab), args.seq_len, hidden=args.hidden, n_layers=args.layers, attn_heads=args.attn_heads)
