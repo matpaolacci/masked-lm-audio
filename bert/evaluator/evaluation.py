@@ -17,6 +17,7 @@ class BERTEvaluator:
         )
         
         self.path_to_save_output = path_to_save_output
+        self.vocab = vocab
         
         self.model.eval()
         
@@ -40,9 +41,12 @@ class BERTEvaluator:
             # 1. forward the next_sentence_prediction and masked_lm model
             mask_lm_output: t.Tensor = self.model.forward(data["bert_input"])
             
-            assert mask_lm_output.shape[0] == eval_dataloader.batch_size and mask_lm_output.shape[1] == self.seq_len
+            batch_size = eval_dataloader.batch_size
+            assert  mask_lm_output.shape[0] == batch_size and \
+                    mask_lm_output.shape[1] == self.seq_len and \
+                    mask_lm_output.shape[2] == len(self.vocab)
 
-            entire_sequence = t.cat((entire_sequence, mask_lm_output.view(mask_lm_output.shape[0] * mask_lm_output.shape[1])))
+            entire_sequence = t.cat((entire_sequence, mask_lm_output.view(batch_size * self.seq_len, len(self.vocab))))
 
             # 2-2. NLLLoss of predicting masked token word
             mask_loss = self.criterion(mask_lm_output.transpose(1, 2), data["bert_label"])
@@ -51,10 +55,21 @@ class BERTEvaluator:
             loss = mask_loss
 
             avg_loss += loss.item()
+        
+        # Take the token indices predicted by the model
+        entire_sequence = entire_sequence.max(1).indices.tolist()
+        mask_special_token = t.isin(entire_sequence, t.tensor(self.vocab.get_special_tokens()))
+        
+        # Take the tokens (vq-vae indices)
+        entire_sequence = t.tensor([self.vocab.itos[idx] for idx in entire_sequence])
+        
+        # Remove special tokens and decrement all indices to bring them back to VQ-VAE token indices
+        entire_sequence = entire_sequence[~mask_special_token] - len(self.vocab.get_special_tokens())
             
         avg_loss = avg_loss / len(data_iter)
         print(f"Average Loss: {avg_loss}")
         print(f"Saving output at '{self.path_to_save_output}'")
+        t.save(entire_sequence, self.path_to_save_output)
         
         
         
