@@ -6,16 +6,15 @@ from ..dataset import WordVocab
 
 class BERTEvaluator:
     
-    def __init__(self, bert: BERT, vocab: WordVocab, checkpoint_model_path: str, seq_len: int, path_to_save_output: str):
+    def __init__(self, vocab: WordVocab, checkpoint_model_path: str, seq_len: int, path_to_save_output: str):
         assert t.cuda.is_available()
         
         self.seq_len = seq_len
         
         self.device = t.device("cuda:0" if t.cuda.is_available() else "cpu")
-        self.model = BERTLM(bert, len(vocab)).to(self.device)
-        self.model.load_state_dict(
-            t.load(checkpoint_model_path, map_location=t.device('cuda'))
-        )
+        
+        print("Loading model checkpoint...")
+        self.model = t.load(checkpoint_model_path, map_location=t.device('cuda'))
         
         self.path_to_save_output = path_to_save_output
         self.vocab = vocab
