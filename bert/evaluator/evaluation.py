@@ -58,7 +58,7 @@ class BERTEvaluator:
             avg_loss += loss.item()
         
         # Take the token indices predicted by the model
-        entire_sequence = entire_sequence.max(1).indices.tolist()
+        entire_sequence = entire_sequence.max(1).indices
         mask_special_token = t.isin(entire_sequence, t.tensor(self.vocab.get_special_tokens()))
         
         # Take the tokens (vq-vae indices)
