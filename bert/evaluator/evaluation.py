@@ -54,7 +54,7 @@ class BERTEvaluator:
             mask_lm_output_without_soa_eof
             outputs.append(mask_lm_output[:,1:mask_lm_output.shape[0]-1])
             """
-            if i == len(data_iter):
+            if i == len(data_iter) - 1:
                 print(f"SEQ: {[self.vocab.itos[idx] for idx in mask_lm_output.max(2).indices[0]]}")
             
             outputs.append(mask_lm_output)
