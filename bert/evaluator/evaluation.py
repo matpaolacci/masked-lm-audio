@@ -54,7 +54,7 @@ class BERTEvaluator:
             # TODO: Not efficient at all
             outputs.append(mask_lm_output)
             
-            if i % 500 == 0:
+            if i % 1000 == 0:
                 entire_sequence = t.cat([entire_sequence] + [o.view(self.batch_size * self.seq_len, len(self.vocab)).cpu() for o in outputs])
                 outputs = []
 
@@ -67,7 +67,7 @@ class BERTEvaluator:
             avg_loss += loss.item()
             
         # Build the entire embedding sequence
-        entire_sequence = t.cat([entire_sequence] + [o.view(self.batch_size * self.seq_len, len(self.vocab)) for o in outputs])
+        entire_sequence = t.cat([entire_sequence] + [o.view(self.batch_size * self.seq_len, len(self.vocab)).cpu() for o in outputs])
         
         # Take the token indices predicted by the model
         entire_sequence = entire_sequence.max(1).indices
