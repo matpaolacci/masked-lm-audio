@@ -54,7 +54,7 @@ class BERTEvaluator:
             mask_lm_output_without_soa_eof
             outputs.append(mask_lm_output[:,1:mask_lm_output.shape[0]-1])
             """
-            print(f"Primo: {mask_lm_output[0]}, last: {mask_lm_output[self.seq_len-1]}")
+            print(f"Primo: {mask_lm_output[0,0]}, last: {mask_lm_output[0,self.seq_len-1]}")
             outputs.append(mask_lm_output)
             
             """TODO: In case some errors occour during due to memory issue
