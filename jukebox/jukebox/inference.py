@@ -7,6 +7,7 @@ from utils.logger import init_logging
 from utils.audio_utils import save_wav_2, audio_preprocess, save_embeddings, load_batches_of_embeddings
 from jukebox.vqvae.vqvae import VQVAE
 from jukebox.utils.dist_utils import print_once
+from pathlib import Path
 
 # def inference(model, hps, data_processor, logger):
 #     model.eval()
@@ -81,7 +82,8 @@ def decode_and_save(model: VQVAE, hps, logger):
             outputs.append(x_recon)
     
     entire_audio = t.cat(outputs)
-    save_wav_2(f'{logger.logdir}/decoded_data/batch_{i}', entire_audio, hps.sr)
+    out_fname = Path(hps.path_to_encoded_data).stem + ".wav"
+    save_wav_2(f'{logger.logdir}/decoded_data/{out_fname}', entire_audio, hps.sr)
     
             
 def run(hps="teeny", port=29500, **kwargs):
