@@ -4,6 +4,7 @@ import jukebox.utils.dist_adapter as dist
 import soundfile
 import librosa
 from jukebox.utils.dist_utils import print_once
+import json
 
 class DefaultSTFTValues:
     def __init__(self, hps):
@@ -143,8 +144,12 @@ def load_audio(file, sr, offset, duration, mono=False):
         x = x.reshape((1, -1))
     return x    
 
-def load_embeddings(fname) -> t.Tensor:
-    return t.load(fname)
+def load_embeddings(fname: str) -> t.Tensor:
+    if fname.endswith(".json"):
+        with open(fname, 'r') as file:
+            return t.tensor(json.load(file))
+    else:
+        return t.load(fname)
 
 def load_batches_of_embeddings(hps, model) -> t.Tensor:
     '''Returns a tensor on cuda'''
