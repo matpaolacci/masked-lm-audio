@@ -8,6 +8,7 @@ class BERTDataset(Dataset):
         '''
             :param seq_len: model input sequence
         '''
+        print("Creating the dataset")
         if not evaluation:
             random.seed(seed)
             
@@ -18,24 +19,35 @@ class BERTDataset(Dataset):
         self.seq_len = seq_len - 2 # since we are adding SOS and EOS tokens to the input sequence
         self._load_filenames(path_to_data)
         self._load_sequence(max_dataset_elements)
-        print(f"Dataset created with {self.__len__()} elements")
+        print(f"Dataset successfully created!")
         
     def _load_filenames(self, path_to_data):
         self.filenames = []
         for filename in os.listdir(path_to_data):
             file_path = os.path.join(path_to_data, filename)
-            if os.path.isfile(file_path):
+            if os.path.isfile(file_path) and file_path.endswith(".pt"):
                 self.filenames.append(file_path)
                 
     def _load_sequence(self, max_dataset_elements: int):
         '''TODO: it takes only the first file. Furthermore it would be better add padding to last insted of cut out elements'''
-        file_embedding_sequence: t.Tensor = t.load(self.filenames[0])
-        file_embedding_sequence = file_embedding_sequence + len(self.vocab.get_special_tokens())
-        embds_to_remove = file_embedding_sequence.shape[0] % self.seq_len
-        print(f"DATASET_DEBUG: removed {embds_to_remove} embeddings")
-        file_embedding_sequence = file_embedding_sequence[:file_embedding_sequence.shape[0]-embds_to_remove]
-        sequences: t.Tensor = file_embedding_sequence.view(file_embedding_sequence.shape[0]//self.seq_len, self.seq_len)
+        sequences = t.tensor([])
+        
+        for filename in self.filenames:
+            print(f"Loading [{filename}]")
+            file_embedding_sequence: t.Tensor = t.load(filename)
+            file_embedding_sequence = file_embedding_sequence + len(self.vocab.get_special_tokens())
+            padding = self.seq_len - file_embedding_sequence.shape[0] % self.seq_len
+            padding = t.zeros(padding, dtype=file_embedding_sequence.dtype) + self.vocab.pad_index
+            file_embedding_sequence = t.cat((file_embedding_sequence, padding))
+            
+            assert file_embedding_sequence.shape[0] % self.seq_len == 0, f"Got [{file_embedding_sequence.shape[0]}] and seq_len of [{self.seq_len}] "
+            print(f"Loaded embeddings at '{filename}' of length [{file_embedding_sequence.shape[0]}] with padding of [{padding.shape[0]}]")
+            sequences = t.cat((sequences, file_embedding_sequence))
+            
+        assert sequences.shape[0] % self.seq_len == 0
+        sequences = sequences.view(sequences.shape[0]//self.seq_len, self.seq_len)
         sequences = sequences[:min(sequences.shape[0], max_dataset_elements), :] if max_dataset_elements else sequences
+        print(f"Created a dataset of {sequences.shape[0]} elements")
         self.sequences = sequences.tolist()
 
     def __len__(self):

@@ -15,6 +15,7 @@ def main():
     parser.add_argument("--output_dir", type=str, help="declare where you want save the output of the model")
     
     parser.add_argument("-c", "--path_to_train_dataset", type=str, help="train dataset for train bert")
+    parser.add_argument("--shuffle_train_dataset", type=bool, default=True, help="pass True if you want to shuffle the elements at the beginning of each epoch")
     parser.add_argument("-t", "--path_to_test_dataset", type=str, default=None, help="test set for evaluate train set")
     
     # evaluation
@@ -74,8 +75,8 @@ def train(args: argparse.Namespace):
         if args.path_to_test_dataset is not None else None
 
     print("Creating Dataloader")
-    train_data_loader = DataLoader(train_dataset, batch_size=args.batch_size, num_workers=args.num_workers)
-    test_data_loader = DataLoader(test_dataset, batch_size=args.batch_size, num_workers=args.num_workers) \
+    train_data_loader = DataLoader(train_dataset, batch_size=args.batch_size, num_workers=args.num_workers, drop_last=True, shuffle=args.shuffle_train_dataset)
+    test_data_loader = DataLoader(test_dataset, batch_size=args.batch_size, num_workers=args.num_workers, drop_last=True) \
         if test_dataset is not None else None
 
     print("Building BERT model")
