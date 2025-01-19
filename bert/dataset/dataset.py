@@ -53,7 +53,7 @@ class BERTDataset(Dataset):
             file_embedding_sequence = t.cat((file_embedding_sequence, padding))
             
             assert file_embedding_sequence.shape[0] % self.seq_len == 0, f"Got [{file_embedding_sequence.shape[0]}] and seq_len of [{self.seq_len}] "
-            print(f"Loaded embeddings at '{filename}' of length [{file_embedding_sequence.shape[0]}] with padding of [{padding.shape[0]}]")
+            #print(f"Loaded embeddings at '{filename}' of length [{file_embedding_sequence.shape[0]}] with padding of [{padding.shape[0]}]")
             sequences = t.cat((sequences, file_embedding_sequence))
             
         assert sequences.shape[0] % self.seq_len == 0
