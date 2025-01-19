@@ -36,7 +36,7 @@ class BERTEvaluator:
         
         avg_loss = 0.0
         
-        entire_sequence = t.tensor([], device=t.device("cpu"))
+        entire_sequence = t.tensor([], device=self.device)
         
         for i, data in data_iter:
             # 0. batch_data will be sent into the device(GPU or cpu)
@@ -50,7 +50,7 @@ class BERTEvaluator:
                     mask_lm_output.shape[1] == self.seq_len and \
                     mask_lm_output.shape[2] == len(self.vocab)
 
-            entire_sequence = t.cat((entire_sequence, mask_lm_output.view(self.batch_size * self.seq_len, len(self.vocab)).cpu()))
+            entire_sequence = t.cat((entire_sequence, mask_lm_output.view(self.batch_size * self.seq_len, len(self.vocab))))
 
             # 2-2. NLLLoss of predicting masked token word
             mask_loss = self.criterion(mask_lm_output.transpose(1, 2), data["bert_label"])
