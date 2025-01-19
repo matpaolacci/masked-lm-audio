@@ -86,7 +86,9 @@ class BERTEvaluator:
         original_len_of_input_sequence = self.eval_dataset.filenames_with_len_seq[0]['len']
         if (entire_sequence.shape[0] != original_len_of_input_sequence):
             print(f"Original length was [{original_len_of_input_sequence}], reconstructed sequence length is [{entire_sequence.shape[0]}]")
-            
+        else:
+            print(f"Input sequence length ({original_len_of_input_sequence}) corresponds with sequence output from BERT")    
+        
         avg_loss = avg_loss / len(data_iter)
         print(f"Average Loss: {avg_loss}")
         print(f"Saving output at '{self.path_to_save_output}'")
