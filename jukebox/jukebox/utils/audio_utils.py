@@ -157,12 +157,17 @@ def load_batches_of_embeddings(hps, model) -> t.Tensor:
     encoded_sequence_length = hps.sample_length // model.hop_lengths[hps.use_level]
     data = t.tensor([], dtype=t.long)
     
+    # TODO: need to adjust this. 
     # Load all file, in each file there are embeddings related to a single audio sample
-    for filename in os.listdir(hps.path_to_encoded_data):
-        file_path = os.path.join(hps.path_to_encoded_data, filename)
-        if os.path.isfile(file_path):
-            encoded_sequence = load_embeddings(file_path)
-            data = t.cat((data, encoded_sequence), dim=0)
+    # for filename in os.listdir(hps.path_to_encoded_data):
+    #     file_path = os.path.join(hps.path_to_encoded_data, filename)
+    #     if os.path.isfile(file_path):
+    #         encoded_sequence = load_embeddings(file_path)
+    #         data = t.cat((data, encoded_sequence), dim=0)
+    
+    # For now only one file at time
+    encoded_sequence = load_embeddings(hps.path_to_encoded_data)
+    data = t.cat((data, encoded_sequence), dim=0)
     
     num_of_encoded_samples = data.shape[0] // encoded_sequence_length
     num_of_embs_to_remove = int((num_of_encoded_samples % hps.bs) * encoded_sequence_length)
@@ -181,11 +186,12 @@ def save_wav(fname, aud, sr):
     for i in list(range(aud.shape[0])):
         soundfile.write(f'{fname}/item_{i}.wav', aud[i], samplerate=sr, format='wav')
 
-def save_wav_with_fname(fname, aud, sr):
+def save_wav_single_file(fname, aud, sr):
     # clip before saving?
     aud = t.clamp(aud, -1, 1).cpu().numpy()
-    for i in list(range(aud.shape[0])):
-        soundfile.write(fname, aud[i], samplerate=sr, format='wav')
+    print_once("Saving file...")
+    soundfile.write(fname, aud, samplerate=sr, format='wav')
+    print_once(f"File saved at {fname}")
 
 def save_wav_2(fname, aud, sr, is_original=False):
     # clip before saving?
