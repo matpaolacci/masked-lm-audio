@@ -1,5 +1,4 @@
 import pickle
-from tqdm import tqdm
 from collections import Counter
 import torch as t
 import os
@@ -54,7 +53,7 @@ class TorchVocab(object):
         words_and_frequencies = sorted(counter.items(), key=lambda tup: tup[0])
         words_and_frequencies.sort(key=lambda tup: tup[1], reverse=True)
 
-        for word, freq in tqdm(words_and_frequencies, desc="Build vocabulary"):
+        for word, freq in words_and_frequencies:
             if freq < min_freq or len(self.itos) == max_size:
                 break
             self.itos.append(word)
@@ -125,10 +124,6 @@ class Vocab(TorchVocab):
 
 # Building Vocab with text files
 class WordVocab(Vocab):
-    '''
-    TODO: The vocabulary will have to take N files as input!!!!
-    Vocabulary of embedding audio codes, that is the codes extracted from some encoded songs by the VQ-VAE
-    '''
     def __init__(self, audio_corpus, max_size=None, min_freq=1):
         print("Building Vocab")
         counter = Counter(audio_corpus)
@@ -183,18 +178,16 @@ def build():
     
     filenames = []
     
-    print("Loading files...")
     for filename in os.listdir(args.corpus_path):
         file_path = os.path.join(args.corpus_path, filename)
-        if os.path.isfile(file_path):
+        if os.path.isfile(file_path) and file_path.endswith(".pt"):
             filenames.append(t.load(file_path))
     
-    print("Concatenate tensors...")
     audio_corpus = t.cat(filenames)
     
     # We shift every index in the audio_corpus of #num_special_tokens positions
     audio_corpus = audio_corpus + len(Vocab.get_special_tokens())
-    
+    audio_corpus = audio_corpus.tolist()
     vocab = WordVocab(audio_corpus, max_size=args.vocab_size, min_freq=args.min_freq)
 
     print("VOCAB SIZE:", len(vocab))
