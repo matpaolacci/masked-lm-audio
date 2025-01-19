@@ -2,6 +2,7 @@ from torch.utils.data import Dataset
 import random, os
 import torch as t
 from .vocab import WordVocab
+from tqdm import tqdm
 
 class BERTDataset(Dataset):
     def __init__(self, path_to_data, vocab, seq_len, elements_to_mask=32, seed=None, evaluation=False, max_dataset_elements=None):
@@ -36,9 +37,8 @@ class BERTDataset(Dataset):
     def _load_sequence(self, max_dataset_elements: int):
         sequences = t.tensor([])
         
-        for l in self.filenames_with_len_seq:
+        for l in tqdm(self.filenames_with_len_seq):
             filename = l['file_path']
-            print(f"Loading {filename}...")
             
             file_embedding_sequence: t.Tensor = t.load(filename)
             
