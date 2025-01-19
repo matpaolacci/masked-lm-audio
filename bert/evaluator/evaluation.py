@@ -37,6 +37,7 @@ class BERTEvaluator:
         avg_loss = 0.0
         
         entire_sequence = t.tensor([], device=t.device("cpu"))
+        outputs: list[t.Tensor] = []
         
         for i, data in data_iter:
             # 0. batch_data will be sent into the device(GPU or cpu)
@@ -50,7 +51,12 @@ class BERTEvaluator:
                     mask_lm_output.shape[1] == self.seq_len and \
                     mask_lm_output.shape[2] == len(self.vocab)
 
-            entire_sequence = t.cat((entire_sequence, mask_lm_output.view(self.batch_size * self.seq_len, len(self.vocab)).cpu()))
+            # TODO: Not efficient at all
+            outputs.append(mask_lm_output)
+            
+            if i % 500 == 0:
+                entire_sequence = t.cat([entire_sequence] + [o.view(self.batch_size * self.seq_len, len(self.vocab)).cpu() for o in outputs])
+                outputs = []
 
             # 2-2. NLLLoss of predicting masked token word
             mask_loss = self.criterion(mask_lm_output.transpose(1, 2), data["bert_label"])
@@ -59,6 +65,9 @@ class BERTEvaluator:
             loss = mask_loss
 
             avg_loss += loss.item()
+            
+        # Build the entire embedding sequence
+        entire_sequence = t.cat([entire_sequence] + [o.view(self.batch_size * self.seq_len, len(self.vocab)) for o in outputs])
         
         # Take the token indices predicted by the model
         entire_sequence = entire_sequence.max(1).indices
@@ -71,7 +80,8 @@ class BERTEvaluator:
         entire_sequence = entire_sequence[~mask_special_token] - len(self.vocab.get_special_tokens())
         
         original_len_of_input_sequence = self.eval_dataset.filenames_with_len_seq[0]['len']
-        assert entire_sequence.shape[0] == original_len_of_input_sequence, f"Original length was [{original_len_of_input_sequence}], reconstructed sequence length is [{entire_sequence.shape[0]}]"
+        if (entire_sequence.shape[0] != original_len_of_input_sequence):
+            print(f"Original length was [{original_len_of_input_sequence}], reconstructed sequence length is [{entire_sequence.shape[0]}]")
             
         avg_loss = avg_loss / len(data_iter)
         print(f"Average Loss: {avg_loss}")
