@@ -38,7 +38,7 @@ class BERTDataset(Dataset):
         
         for l in self.filenames_with_len_seq:
             filename = l['file_path']
-            print(f"Loading [{filename}]")
+            print(f"Loading {filename}...")
             
             file_embedding_sequence: t.Tensor = t.load(filename)
             
