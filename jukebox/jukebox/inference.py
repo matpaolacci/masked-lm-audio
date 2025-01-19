@@ -104,7 +104,8 @@ def run(hps="teeny", port=29500, **kwargs):
     
     logger, metrics = init_logging(hps, local_rank, rank)
     logger.iters = vqvae.step
-    hps.path_to_encoded_data = f'{logger.logdir}/encoded_data'
+    if not hps.path_to_encoded_data:    
+        hps.path_to_encoded_data = f'{logger.logdir}/encoded_data'
 
     if hps.operation_type == "inference":
         # Setup dataset
