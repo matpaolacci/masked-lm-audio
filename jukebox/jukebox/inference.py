@@ -74,10 +74,14 @@ def decode_and_save(model: VQVAE, hps, logger):
     
     data: t.Tensor = load_batches_of_embeddings(hps, model)
     model.eval()
-    with t.no_grad():
+    outputs = []
+    with t.no_grad():        
         for i, batch in enumerate(data):
             x_recon = model.decode(batch.unsqueeze(0), start_level=hps.use_level, bs_chunks=hps.bs)
-            save_wav_2(f'{logger.logdir}/decoded_data/batch_{i}', x_recon, hps.sr)
+            outputs.append(x_recon)
+    
+    entire_audio = t.cat(outputs)
+    save_wav_2(f'{logger.logdir}/decoded_data/batch_{i}', entire_audio, hps.sr)
     
             
 def run(hps="teeny", port=29500, **kwargs):

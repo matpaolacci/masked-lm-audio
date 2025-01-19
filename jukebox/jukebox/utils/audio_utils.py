@@ -147,7 +147,7 @@ def load_audio(file, sr, offset, duration, mono=False):
 def load_embeddings(fname: str) -> t.Tensor:
     if fname.endswith(".json"):
         with open(fname, 'r') as file:
-            return t.tensor(json.load(file))
+            return t.tensor(json.load(file), dtype=t.long)
     else:
         return t.load(fname)
 
