@@ -8,6 +8,10 @@ from .trainer import BERTTrainer
 from .dataset import BERTDataset, WordVocab
 from .evaluator import BERTEvaluator 
 
+import warnings
+
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 def main():
     parser = argparse.ArgumentParser()
     
@@ -107,8 +111,7 @@ def inference(args: argparse.Namespace):
         seq_len=args.seq_len,
         elements_to_mask=args.elements_to_mask,
         evaluation=True,
-        seed=args.random_seed,
-        max_dataset_elements=args.max_dataset_elements
+        seed=args.random_seed
     )
     
     bertEvaluator = BERTEvaluator(
