@@ -107,6 +107,7 @@ def run(hps="teeny", port=29500, **kwargs):
         data_processor = DataProcessor(hps)
         encode_and_save(vqvae, hps, data_processor, logger)
     elif hps.operation_type == "decode":
+        print_once("Do decoding...")
         decode_and_save(vqvae, hps, logger)
     else:
         raise ValueError(f"operation_type={hps.operation_type} not supported")
