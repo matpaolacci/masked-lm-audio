@@ -4,7 +4,7 @@ from jukebox.hparams import Hyperparams, setup_hparams
 import jukebox.utils.dist_adapter as dist
 from make_models import make_vqvae
 from utils.logger import init_logging
-from utils.audio_utils import save_wav_2, audio_preprocess, save_embeddings, load_batches_of_embeddings
+from utils.audio_utils import save_wav_2, audio_preprocess, save_embeddings, load_batches_of_embeddings, save_wav_with_fname
 from jukebox.vqvae.vqvae import VQVAE
 from jukebox.utils.dist_utils import print_once
 from pathlib import Path
@@ -83,8 +83,9 @@ def decode_and_save(model: VQVAE, hps, logger):
             outputs.append(x_recon)
     
     entire_audio = t.cat(outputs)
+    print_once(entire_audio.shape)
     out_fname = Path(hps.path_to_encoded_data).stem + ".wav"
-    save_wav_2(f'{logger.logdir}/decoded_data/{out_fname}', entire_audio, hps.sr)
+    save_wav_with_fname(f'{logger.logdir}/decoded_data/{out_fname}', entire_audio, hps.sr)
     
             
 def run(hps="teeny", port=29500, **kwargs):

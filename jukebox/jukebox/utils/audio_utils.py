@@ -180,6 +180,12 @@ def save_wav(fname, aud, sr):
     for i in list(range(aud.shape[0])):
         soundfile.write(f'{fname}/item_{i}.wav', aud[i], samplerate=sr, format='wav')
 
+def save_wav_with_fname(fname, aud, sr):
+    # clip before saving?
+    aud = t.clamp(aud, -1, 1).cpu().numpy()
+    for i in list(range(aud.shape[0])):
+        soundfile.write(fname, aud[i], samplerate=sr, format='wav')
+
 def save_wav_2(fname, aud, sr, is_original=False):
     # clip before saving?
     aud = t.clamp(aud, -1, 1).cpu().numpy()
