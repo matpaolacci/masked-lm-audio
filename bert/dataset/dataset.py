@@ -48,6 +48,7 @@ class BERTDataset(Dataset):
             # Calculate the padding to add at the end
             file_embedding_sequence = file_embedding_sequence + len(self.vocab.get_special_tokens())
             padding = self.seq_len - file_embedding_sequence.shape[0] % self.seq_len
+            self.padding = padding
             padding = t.zeros(padding, dtype=file_embedding_sequence.dtype) + self.vocab.pad_index
             file_embedding_sequence = t.cat((file_embedding_sequence, padding))
             

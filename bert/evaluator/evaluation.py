@@ -50,14 +50,9 @@ class BERTEvaluator:
             assert  mask_lm_output.shape[0] == self.batch_size and \
                     mask_lm_output.shape[1] == self.seq_len and \
                     mask_lm_output.shape[2] == len(self.vocab)
-            """
-            mask_lm_output_without_soa_eof
-            outputs.append(mask_lm_output[:,1:mask_lm_output.shape[0]-1])
-            """
-            if i == len(data_iter) - 1:
-                print(f"SEQ: {[self.vocab.itos[idx] for idx in mask_lm_output.max(2).indices[0]]}")
             
-            outputs.append(mask_lm_output)
+            # We remove the SOA and EOA elements
+            outputs.append(mask_lm_output[:, 1:self.seq_len-1, :].view(self.batch_size * (self.seq_len-2), len(self.vocab)))
             
             """TODO: In case some errors occour during due to memory issue
             if i % 1000 == 0:
@@ -74,14 +69,16 @@ class BERTEvaluator:
             avg_loss += loss.item()
             
         # Build the entire embedding sequence
-        entire_sequence = t.cat([entire_sequence] + [o.view(self.batch_size * self.seq_len, len(self.vocab)).cpu() for o in outputs])
+        entire_sequence = t.cat([entire_sequence] + [o.cpu() for o in outputs])
         
         # Take the token indices predicted by the model
         entire_sequence = entire_sequence.max(1).indices
         
-        # Take the tokens (along with specials)
-        entire_sequence = t.tensor([self.vocab.itos[idx] for idx in entire_sequence])
+        # Take the tokens (along with specials). Pad tokens are removed
+        pad_elements = self.eval_dataset.padding
+        entire_sequence = t.tensor([self.vocab.itos[idx] for idx in entire_sequence])[:entire_sequence.shape[0]-pad_elements]
         mask_special_token = t.isin(entire_sequence, t.tensor(self.vocab.get_special_tokens()))
+        print(f"Special tokens found and removed: [{mask_special_token.sum().item()}]")
         
         # Remove special tokens and decrement all indices to bring them back to VQ-VAE token indices
         entire_sequence = entire_sequence[~mask_special_token] - len(self.vocab.get_special_tokens())
