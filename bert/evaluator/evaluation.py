@@ -76,7 +76,7 @@ class BERTEvaluator:
         avg_loss = avg_loss / len(data_iter)
         print(f"Average Loss: {avg_loss}")
         print(f"Saving output at '{self.path_to_save_output}'")
-        t.save(entire_sequence, self.path_to_save_output)
+        t.save(entire_sequence.cpu(), self.path_to_save_output)
         
         
         
