@@ -50,11 +50,14 @@ class BERTEvaluator:
             assert  mask_lm_output.shape[0] == self.batch_size and \
                     mask_lm_output.shape[1] == self.seq_len and \
                     mask_lm_output.shape[2] == len(self.vocab)
-
-            # TODO: Not efficient at all
+            """
+            mask_lm_output_without_soa_eof
+            outputs.append(mask_lm_output[:,1:mask_lm_output.shape[0]-1])
+            """
+            print(f"Primo: {mask_lm_output[0]}, last: {mask_lm_output[self.seq_len-1]}")
             outputs.append(mask_lm_output)
             
-            """
+            """TODO: In case some errors occour during due to memory issue
             if i % 1000 == 0:
                 entire_sequence = t.cat([entire_sequence] + [o.view(self.batch_size * self.seq_len, len(self.vocab)).cpu() for o in outputs])
                 outputs = []
