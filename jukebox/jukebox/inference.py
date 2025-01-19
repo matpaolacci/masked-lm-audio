@@ -83,7 +83,7 @@ def decode_and_save(model: VQVAE, hps, logger):
             outputs.append(x_recon)
     
     entire_audio = t.cat(outputs)
-    print_once(entire_audio.shape)
+    entire_audio = entire_audio.view(entire_audio.shape[0] * entire_audio.shape[1], 1)
     out_fname = Path(hps.path_to_encoded_data).stem + ".wav"
     save_wav_with_fname(f'{logger.logdir}/decoded_data/{out_fname}', entire_audio, hps.sr)
     
