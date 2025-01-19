@@ -54,9 +54,11 @@ class BERTEvaluator:
             # TODO: Not efficient at all
             outputs.append(mask_lm_output)
             
+            """
             if i % 1000 == 0:
                 entire_sequence = t.cat([entire_sequence] + [o.view(self.batch_size * self.seq_len, len(self.vocab)).cpu() for o in outputs])
                 outputs = []
+            """
 
             # 2-2. NLLLoss of predicting masked token word
             mask_loss = self.criterion(mask_lm_output.transpose(1, 2), data["bert_label"])
