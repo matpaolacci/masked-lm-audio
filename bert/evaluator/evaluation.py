@@ -1,5 +1,5 @@
 from torch.utils.data import DataLoader
-import torch as t, tqdm
+import torch as t, tqdm, json
 import torch.nn as nn
 from ..model.language_model import BERTLM, BERT
 from ..dataset import WordVocab, BERTDataset
@@ -92,7 +92,10 @@ class BERTEvaluator:
         avg_loss = avg_loss / len(data_iter)
         print(f"Average Loss: {avg_loss}")
         print(f"Saving output at '{self.path_to_save_output}'")
-        t.save(entire_sequence, self.path_to_save_output)
+
+        # We save the tensor as list for compatibility reasons
+        with open(self.path_to_save_output, 'w') as file:
+            json.dump(entire_sequence.tolist(), file)
         
         
         
