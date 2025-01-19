@@ -26,12 +26,12 @@ class BERTDataset(Dataset):
         # for example [['path/to/file_1', N_1], ['path/to/file_2', N_2], ...]
         self.filenames_with_len_seq = []
         
-        assert not self.evaluation or os.path.isfile(file_path), f"During evaluation you must pass a file to build the dataset not a dir!"
-        
         for filename in os.listdir(path_to_data):
             file_path = os.path.join(path_to_data, filename)
             if os.path.isfile(file_path) and file_path.endswith(".pt"):
                 self.filenames_with_len_seq.append({'file_path': file_path, 'len': None})
+                
+        assert not self.evaluation or len(self.filenames_with_len_seq) == 1, f"During the evaluation you must pass a directory containing only one file to build the dataset!"
                 
     def _load_sequence(self, max_dataset_elements: int):
         sequences = t.tensor([])
