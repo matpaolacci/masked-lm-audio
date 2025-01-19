@@ -96,7 +96,7 @@ class BERTDataset(Dataset):
         end_masking = start_masking + elements_to_mask
         
         for i, token in enumerate(sequence):
-            if i >= start_masking and i<=end_masking:
+            if i >= start_masking and i<=end_masking and token not in self.vocab.get_special_tokens():
                 # mask the central tokens
                 sequence[i] = self.vocab.mask_index
             else:
