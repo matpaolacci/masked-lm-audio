@@ -22,19 +22,30 @@ class BERTDataset(Dataset):
         print(f"Dataset successfully created!")
         
     def _load_filenames(self, path_to_data):
-        self.filenames = []
+        # We are going to build a list of filenames along with the length of the embedding sequence 
+        # for example [['path/to/file_1', N_1], ['path/to/file_2', N_2], ...]
+        self.filenames_with_len_seq = []
+        
+        assert not self.evaluation or os.path.isfile(file_path), f"During evaluation you must pass a file to build the dataset not a dir!"
+        
         for filename in os.listdir(path_to_data):
             file_path = os.path.join(path_to_data, filename)
             if os.path.isfile(file_path) and file_path.endswith(".pt"):
-                self.filenames.append(file_path)
+                self.filenames_with_len_seq.append({'file_path': file_path, 'len': None})
                 
     def _load_sequence(self, max_dataset_elements: int):
-        '''TODO: it takes only the first file. Furthermore it would be better add padding to last insted of cut out elements'''
         sequences = t.tensor([])
         
-        for filename in self.filenames:
+        for l in self.filenames_with_len_seq:
+            filename = l['file_path']
             print(f"Loading [{filename}]")
+            
             file_embedding_sequence: t.Tensor = t.load(filename)
+            
+            # Set the length of just loaded sequence
+            l['len'] = file_embedding_sequence.shape[0]
+            
+            # Calculate the padding to add at the end
             file_embedding_sequence = file_embedding_sequence + len(self.vocab.get_special_tokens())
             padding = self.seq_len - file_embedding_sequence.shape[0] % self.seq_len
             padding = t.zeros(padding, dtype=file_embedding_sequence.dtype) + self.vocab.pad_index

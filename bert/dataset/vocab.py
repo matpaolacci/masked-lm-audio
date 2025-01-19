@@ -124,7 +124,10 @@ class Vocab(TorchVocab):
 
 # Building Vocab with text files
 class WordVocab(Vocab):
-    '''Vocabulary of embedding audio codes, that is the codes extracted from some encoded songs by the VQ-VAE'''
+    '''
+    TODO: The vocabulary will have to take N files as input!!!!
+    Vocabulary of embedding audio codes, that is the codes extracted from some encoded songs by the VQ-VAE
+    '''
     def __init__(self, audio_corpus, max_size=None, min_freq=1):
         print("Building Vocab")
         counter = Counter(audio_corpus)

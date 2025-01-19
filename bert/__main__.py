@@ -111,16 +111,16 @@ def inference(args: argparse.Namespace):
         max_dataset_elements=args.max_dataset_elements
     )
     
-    eval_dataloader = DataLoader(eval_dataset, batch_size=args.batch_size, shuffle=False, num_workers=1)
-    
     bertEvaluator = BERTEvaluator(
         vocab,
         seq_len=args.seq_len,
+        eval_dataset=eval_dataset,
+        batch_size=args.batch_size,
         checkpoint_model_path=args.path_to_saved_model,
         path_to_save_output=args.path_to_save_output
     )
     
-    bertEvaluator.evaluate(eval_dataloader)
+    bertEvaluator.evaluate()
 
 if __name__ == '__main__':
     main()

@@ -2,11 +2,11 @@ from torch.utils.data import DataLoader
 import torch as t, tqdm
 import torch.nn as nn
 from ..model.language_model import BERTLM, BERT
-from ..dataset import WordVocab
+from ..dataset import WordVocab, BERTDataset
 
 class BERTEvaluator:
     
-    def __init__(self, vocab: WordVocab, checkpoint_model_path: str, seq_len: int, path_to_save_output: str):
+    def __init__(self, vocab: WordVocab, eval_dataset: BERTDataset, batch_size: int, checkpoint_model_path: str, seq_len: int, path_to_save_output: str):
         assert t.cuda.is_available()
         
         self.seq_len = seq_len
@@ -16,6 +16,9 @@ class BERTEvaluator:
         print("Loading model checkpoint...")
         self.model = t.load(checkpoint_model_path, map_location=t.device('cuda'))
         
+        self.eval_dataset = eval_dataset
+        self.batch_size = batch_size
+        self.eval_dataloader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, num_workers=1)
         self.path_to_save_output = path_to_save_output
         self.vocab = vocab
         self.criterion = nn.NLLLoss(ignore_index=0)
@@ -23,12 +26,12 @@ class BERTEvaluator:
         self.model.eval()
         
     
-    def evaluate(self, eval_dataloader: DataLoader):
+    def evaluate(self):
 
         # Setting the tqdm progress bar
-        data_iter = tqdm.tqdm(enumerate(eval_dataloader),
+        data_iter = tqdm.tqdm(enumerate(self.eval_dataloader),
                             desc="Evaluating",
-                            total=len(eval_dataloader),
+                            total=len(self.eval_dataloader),
                             bar_format="{l_bar}{r_bar}")
         
         avg_loss = 0.0
@@ -42,12 +45,11 @@ class BERTEvaluator:
             # 1. forward the next_sentence_prediction and masked_lm model
             mask_lm_output: t.Tensor = self.model.forward(data["bert_input"])
             
-            batch_size = eval_dataloader.batch_size
-            assert  mask_lm_output.shape[0] == batch_size and \
+            assert  mask_lm_output.shape[0] == self.batch_size and \
                     mask_lm_output.shape[1] == self.seq_len and \
                     mask_lm_output.shape[2] == len(self.vocab)
 
-            entire_sequence = t.cat((entire_sequence, mask_lm_output.view(batch_size * self.seq_len, len(self.vocab)).cpu()))
+            entire_sequence = t.cat((entire_sequence, mask_lm_output.view(self.batch_size * self.seq_len, len(self.vocab)).cpu()))
 
             # 2-2. NLLLoss of predicting masked token word
             mask_loss = self.criterion(mask_lm_output.transpose(1, 2), data["bert_label"])
@@ -66,6 +68,9 @@ class BERTEvaluator:
         
         # Remove special tokens and decrement all indices to bring them back to VQ-VAE token indices
         entire_sequence = entire_sequence[~mask_special_token] - len(self.vocab.get_special_tokens())
+        
+        original_len_of_input_sequence = self.eval_dataset.filenames_with_len_seq[0]['len']
+        assert entire_sequence.shape[0] == original_len_of_input_sequence, f"Original length was [{original_len_of_input_sequence}], reconstructed sequence length is [{entire_sequence.shape[0]}]"
             
         avg_loss = avg_loss / len(data_iter)
         print(f"Average Loss: {avg_loss}")
