@@ -8,6 +8,7 @@ from utils.audio_utils import save_wav_2, audio_preprocess, save_embeddings, loa
 from jukebox.vqvae.vqvae import VQVAE
 from jukebox.utils.dist_utils import print_once
 from pathlib import Path
+from tqdm import tqdm
 
 # def inference(model, hps, data_processor, logger):
 #     model.eval()
@@ -77,7 +78,7 @@ def decode_and_save(model: VQVAE, hps, logger):
     model.eval()
     outputs = []
     with t.no_grad():        
-        for i, batch in enumerate(data):
+        for batch in tqdm(data):
             x_recon = model.decode(batch.unsqueeze(0), start_level=hps.use_level, bs_chunks=hps.bs)
             outputs.append(x_recon)
     
