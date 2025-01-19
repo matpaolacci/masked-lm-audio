@@ -1,7 +1,8 @@
 import pickle
-import tqdm
+from tqdm import tqdm
 from collections import Counter
 import torch as t
+import os
 
 
 class TorchVocab(object):
@@ -53,7 +54,7 @@ class TorchVocab(object):
         words_and_frequencies = sorted(counter.items(), key=lambda tup: tup[0])
         words_and_frequencies.sort(key=lambda tup: tup[1], reverse=True)
 
-        for word, freq in words_and_frequencies:
+        for word, freq in tqdm(words_and_frequencies, desc="Build vocabulary"):
             if freq < min_freq or len(self.itos) == max_size:
                 break
             self.itos.append(word)
@@ -174,16 +175,25 @@ def build():
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--corpus_path", required=True, type=str)
+    parser.add_argument("-c", "--corpus_path", required=True, type=str, help="path to directory containing the audio tracks")
     parser.add_argument("-o", "--output_path", required=True, type=str)
     parser.add_argument("-s", "--vocab_size", type=int, default=None)
     parser.add_argument("-m", "--min_freq", type=int, default=1)
     args = parser.parse_args()
     
-    audio_corpus = t.load(args.corpus_path).tolist()
+    filenames = []
+    
+    print("Loading files...")
+    for filename in os.listdir(args.corpus_path):
+        file_path = os.path.join(args.corpus_path, filename)
+        if os.path.isfile(file_path):
+            filenames.append(t.load(file_path))
+    
+    print("Concatenate tensors...")
+    audio_corpus = t.cat(filenames)
     
     # We shift every index in the audio_corpus of #num_special_tokens positions
-    audio_corpus = [x + len(Vocab.get_special_tokens()) for x in audio_corpus]
+    audio_corpus = audio_corpus + len(Vocab.get_special_tokens())
     
     vocab = WordVocab(audio_corpus, max_size=args.vocab_size, min_freq=args.min_freq)
 
