@@ -69,6 +69,7 @@ def encode_and_save(model: VQVAE, hps: Hyperparams, data_processor: DataProcesso
                     curr_song_data = t.cat((curr_song_data, sample_data), dim=0)
 
 def decode_and_save(model: VQVAE, hps, logger):
+    print_once(f"Decoding embedding sequence at {hps.path_to_encoded_data}")
     os.makedirs(f'{logger.logdir}/decoded_data', exist_ok=True)
     
     data: t.Tensor = load_batches_of_embeddings(hps, model)
