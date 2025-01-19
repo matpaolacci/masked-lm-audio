@@ -111,7 +111,8 @@ def inference(args: argparse.Namespace):
         seq_len=args.seq_len,
         elements_to_mask=args.elements_to_mask,
         evaluation=True,
-        seed=args.random_seed
+        seed=args.random_seed,
+        max_dataset_elements=args.max_dataset_elements
     )
     
     bertEvaluator = BERTEvaluator(
