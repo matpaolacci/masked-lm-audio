@@ -36,14 +36,15 @@ class BERTEvaluator:
         
         avg_loss = 0.0
         
-        entire_sequence = t.tensor([])
+        entire_sequence = t.tensor([], device=t.device("cpu"))
         
-        for _, data in data_iter:
+        for i, data in data_iter:
             # 0. batch_data will be sent into the device(GPU or cpu)
             data = {key: value.to(self.device) for key, value in data.items()}
 
-            # 1. forward the next_sentence_prediction and masked_lm model
-            mask_lm_output: t.Tensor = self.model.forward(data["bert_input"])
+            # 1. forward the masked_lm model
+            with t.no_grad():
+                mask_lm_output: t.Tensor = self.model.forward(data["bert_input"])
             
             assert  mask_lm_output.shape[0] == self.batch_size and \
                     mask_lm_output.shape[1] == self.seq_len and \
