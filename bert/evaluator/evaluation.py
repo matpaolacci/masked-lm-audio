@@ -23,10 +23,10 @@ class BERTEvaluator:
         self.vocab = vocab
         self.criterion = nn.NLLLoss(ignore_index=0)
         
-        self.model.eval()
-        
     
     def evaluate(self):
+        
+        self.model.eval()
 
         # Setting the tqdm progress bar
         data_iter = tqdm.tqdm(enumerate(self.eval_dataloader),
