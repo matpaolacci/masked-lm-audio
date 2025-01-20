@@ -92,6 +92,12 @@ class BERTEvaluator:
         avg_loss = avg_loss / len(data_iter)
         print(f"Average Loss: {avg_loss}")
         print(f"Saving output at '{self.path_to_save_output}'")
+        
+        # Check original sequence vs BERT's output
+        original_seq = t.tensor(self.eval_dataset.sequences)
+        original_seq = original_seq.view(original_seq.shape[0] * original_seq.shape[1])
+        
+        print(f"The BERT's output sequence is {(entire_sequence == original_seq).sum().item()/entire_sequence.shape[0]}% similar to the original")
 
         # We save the tensor as list for compatibility reasons
         with open(self.path_to_save_output, 'w') as file:
