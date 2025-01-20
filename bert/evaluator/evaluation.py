@@ -52,7 +52,7 @@ class BERTEvaluator:
                     mask_lm_output.shape[2] == len(self.vocab)
             
             # We remove the SOA and EOA elements
-            outputs.append(mask_lm_output[:, 1:self.seq_len-1, :].view(self.batch_size * (self.seq_len-2), len(self.vocab)))
+            outputs.append(mask_lm_output[:, 1:self.seq_len-1, :].reshape(self.batch_size * (self.seq_len-2), len(self.vocab)))
             
             """TODO: In case some errors occour during due to memory issue
             if i % 1000 == 0:
