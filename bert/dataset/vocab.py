@@ -3,6 +3,8 @@ from collections import Counter
 import torch as t
 import os
 
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 class TorchVocab(object):
     """Defines a vocabulary object that will be used to numericalize a field.
