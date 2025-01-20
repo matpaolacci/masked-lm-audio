@@ -56,7 +56,7 @@ class BERTEvaluator:
             
             #"""TODO: In case some errors occour during due to memory issue
             if i % 50 == 0:
-                entire_sequence = t.cat([entire_sequence] + [o.view(self.batch_size * self.seq_len, len(self.vocab)).cpu() for o in outputs])
+                entire_sequence = t.cat([entire_sequence] + [o.cpu() for o in outputs])
                 outputs = []
             #"""
 
