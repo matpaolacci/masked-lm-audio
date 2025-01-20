@@ -173,6 +173,8 @@ def load_batches_of_embeddings(hps, model) -> t.Tensor:
     num_of_embs_to_remove = int((num_of_encoded_samples % hps.bs) * encoded_sequence_length)
     data = data[:data.shape[0] - num_of_embs_to_remove]
     num_of_batches = int((data.shape[0] / encoded_sequence_length) / hps.bs)
+    
+    print(f"num_of_encoded_samples: {num_of_encoded_samples}\nnum_of_embs_to_remove:{num_of_embs_to_remove}\nencoded_sequence_length: {encoded_sequence_length}")
     data = data.reshape(num_of_batches, hps.bs, encoded_sequence_length)
     return data.cuda()
 
