@@ -95,7 +95,7 @@ class BERTEvaluator:
         
         # Check original sequence vs BERT's output
         original_seq = t.tensor(self.eval_dataset.sequences)
-        original_seq = original_seq.view(original_seq.shape[0] * original_seq.shape[1])
+        original_seq = original_seq.view(original_seq.shape[0] * original_seq.shape[1])[:-pad_elements]
         
         print(f"The BERT's output sequence is {(entire_sequence == original_seq).sum().item()/entire_sequence.shape[0]}% similar to the original")
 
