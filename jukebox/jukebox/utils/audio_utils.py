@@ -169,6 +169,7 @@ def load_batches_of_embeddings(hps, model) -> t.Tensor:
     encoded_sequence = load_embeddings(hps.path_to_encoded_data)
     data = t.cat((data, encoded_sequence), dim=0)
     
+    data = data[:data.shape[0]-data.shape[0]%encoded_sequence_length]
     num_of_encoded_samples = data.shape[0] // encoded_sequence_length
     num_of_embs_to_remove = int((num_of_encoded_samples % hps.bs) * encoded_sequence_length)
     data = data[:data.shape[0] - num_of_embs_to_remove]
