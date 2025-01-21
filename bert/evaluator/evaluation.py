@@ -54,7 +54,7 @@ class BERTEvaluator:
             # We remove the SOA and EOA elements
             outputs.append(mask_lm_output[:, 1:self.seq_len-1, :].reshape(self.batch_size * (self.seq_len-2), len(self.vocab)))
             
-            #"""TODO: In case some errors occour during due to memory issue
+            #"""TODO: This could be improved. Useful i case some errors occour during due to memory issue
             if i % 50 == 0:
                 entire_sequence = t.cat([entire_sequence] + [o.cpu() for o in outputs])
                 outputs = []
