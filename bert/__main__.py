@@ -1,8 +1,6 @@
 import argparse, json
-
 from torch.utils.data import DataLoader
 import torch as t
-
 from .model import BERT, BERTLM
 from .trainer import BERTTrainer
 from .dataset import BERTDataset, WordVocab
