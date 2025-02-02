@@ -52,7 +52,7 @@ def encode_and_save(model: VQVAE, hps: Hyperparams, data_processor: DataProcesso
             x, song_idx = batch['data'], batch['song_index']
             x_original = audio_preprocess(x, hps).cuda()
             
-            # [indexes_level_0, indexes_level_1, indexes_level_2]
+            # [indexes_level_0, indexes_level_1, indexes_level_2] 
             #   indexes_level_i.shape = (bs, encoded_sequence_length)
             x_l = model.encode(x_original, bs_chunks=hps.bs)
             x_l = x_l[hps.use_level].cpu()
