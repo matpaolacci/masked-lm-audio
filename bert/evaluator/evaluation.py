@@ -46,13 +46,14 @@ class BERTEvaluator:
             # 1. forward the masked_lm model
             with t.no_grad():
                 mask_lm_output: t.Tensor = self.model.forward(data["bert_input"])
+                
+            batch_size = mask_lm_output.shape[0]
             
-            assert  mask_lm_output.shape[0] == self.batch_size and \
+            assert  mask_lm_output.shape[0] == batch_size and \
                     mask_lm_output.shape[1] == self.seq_len and \
                     mask_lm_output.shape[2] == len(self.vocab)
             
             # We remove the SOA and EOA elements
-            batch_size = mask_lm_output.shape[0]
             outputs.append(mask_lm_output[:, 1:self.seq_len-1, :].reshape(batch_size * (self.seq_len-2), len(self.vocab)))
             
             #"""TODO: This could be improved. Useful i case some errors occour during due to memory issue
