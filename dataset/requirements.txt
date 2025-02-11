@@ -1,0 +1,7 @@
+ffmpeg-python
+matplotlib
+tqdm
+pandas
+tensorboard
+scipy
+prettytable
