@@ -1,5 +1,5 @@
 # Masked Language Model for Audio
-In this work, the VQ-VAE model is adapted for audio signals and BERT is used to reconstruct masked audio sequences, treating discrete indices as tokens for NLP processing.
+In this work, the VQ-VAE model is adapted for audio signals and BERT is used to reconstruct masked audio sequences by treating discrete indices as tokens for NLP processing.
 
 ## Some informations about the notebooks
 - My implementation of the VQ-VAE is in the notebook [vqvae.ipynb](vqvae.ipynb) that contains the reconstructed audio.
