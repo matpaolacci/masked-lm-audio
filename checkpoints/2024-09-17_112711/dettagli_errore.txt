@@ -1,0 +1,3 @@
+[2024-09-17 17:31:39] - EPOCH 4852
+[2024-09-17 17:31:43] - Train reconstruction error: 0.010804198798723519 - Validation reconstruction error: 0.014410867355763912
+[2024-09-17 17:31:43] - Train perplexity: 104.86532020568848 - Validation perplexity: 307.0919189453125

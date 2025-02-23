@@ -1,0 +1,20 @@
+{
+    "batch_size": 4,
+    "epochs": 8000,
+    "train_size": 16,
+    "validation_size": 4,
+    "test_size": 4,
+    "audio_length": 14,
+    "second_from_which_to_start": 55,
+    "remove_silence": true,
+    "num_hiddens": 128,
+    "num_halving_layers": 4,
+    "num_residual_hiddens": 64,
+    "num_residual_layers": 3,
+    "embedding_dim": 64,
+    "num_embeddings": 512,
+    "commitment_cost": 0.25,
+    "decay": 0.99,
+    "learning_rate": 0.001,
+    "use_spectral": true
+}
